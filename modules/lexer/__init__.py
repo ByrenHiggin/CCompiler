@@ -1,1 +1,1 @@
-from .lexer import LexerInstance
+from .lexer import LexerService

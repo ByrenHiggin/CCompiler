@@ -17,7 +17,7 @@
 				}
 			],
 			"console": "integratedTerminal",
-			"args": ["build/preprocessed/basic.c"]
+			"args": ["--lex","./writing-a-c-compiler-tests/tests/chapter_1/valid/multi_digit.c"]
 		}
 	]
 }
