@@ -10,8 +10,14 @@
 			"type": "debugpy",
 			"request": "launch",
 			"program": "main.py",
+			"pathMappings": [
+				{
+					"localRoot": "${workspaceFolder}",
+					"remoteRoot": "."
+				}
+			],
 			"console": "integratedTerminal",
-			"args": ["--lex"]
+			"args": ["build/preprocessed/basic.c"]
 		}
 	]
 }
