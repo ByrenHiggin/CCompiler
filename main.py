@@ -1,8 +1,9 @@
 import sys
 import argparse
-from modules.lexer.lexer import LexerService
+from modules.lexer.LexerService import LexerService
+from modules.parser.ParserService import ParserService
 
-parser = argparse.ArgumentParser(description="A sample script demonstrating argument parsing.")
+argparser = argparse.ArgumentParser(description="A sample script demonstrating argument parsing.")
 
 def handle_argument(arg):
     if arg == '--lex':
@@ -11,20 +12,21 @@ def handle_argument(arg):
         return "Parsing selected."
     
 def main():
-    parser.add_argument('--lex',"-l", action='store_true', help='Perform lexical analysis')
-    parser.add_argument('--parse',"-p", action='store_true', help='Perform parsing')
-    parser.add_argument('--codegen',"-c", action='store_true', help='Perform codegen')
-    parser.add_argument('file', type=ascii, help='File to process')
-    args = parser.parse_args()
+    argparser.add_argument('--lex',"-l", action='store_true', help='Perform lexical analysis')
+    argparser.add_argument('--parse',"-p", action='store_true', help='Perform parsing')
+    argparser.add_argument('--codegen',"-c", action='store_true', help='Perform codegen')
+    argparser.add_argument('file', type=ascii, help='File to process')
+    args = argparser.parse_args()
     print("Compiler starting...")
     if(args.file):
         try:
             lexer = LexerService()
-            lexer.lex_file(args.file.strip("'"))
+            parser = ParserService()
+            tokens = lexer.lex_file(args.file.strip("'"))
             if(args.lex):
                 sys.exit(0)
+            ast = parser.parse_tokens(tokens)
             if(args.parse):
-                print("Parsing selected.")
                 sys.exit(0)
             print("codegen now")
             if(args.codegen):

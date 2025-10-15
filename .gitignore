@@ -1,3 +1,7 @@
 dist/*
 build/*
 __pycache__/
+
+/writing-a-c-compiler-tests
+/writing-a-c-compiler-tests/*
+writing-a-c-compiler-tests
