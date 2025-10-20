@@ -27,7 +27,7 @@ def main():
             tokens = lexer.lex_file(args.file.strip("'"))
             if(args.lex):
                 sys.exit(0)
-            ast = parser.parse_tokens(tokens) # type: ignore
+            ast = parser.parse_lex(tokens) # type: ignore
             if(args.parse):
                 sys.exit(0)
             print("codegen now")

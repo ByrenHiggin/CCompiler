@@ -17,7 +17,20 @@
 				}
 			],
 			"console": "integratedTerminal",
-			"args": ["--lex","./writing-a-c-compiler-tests/tests/chapter_1/valid/multi_digit.c"]
+			"args": ["--parse","./writing-a-c-compiler-tests/tests/chapter_1/invalid_parse/unclosed_brace.c"]
+		},
+		{
+			"name": "Python Debugger: All",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "tests/test_all_test_files.py",
+			"pathMappings": [
+				{
+					"localRoot": "${workspaceFolder}",
+					"remoteRoot": "."
+				}
+			],
+			"console": "integratedTerminal",
 		}
 	]
 }

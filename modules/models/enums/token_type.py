@@ -25,5 +25,6 @@ class TokenPatterns(Enum):
     LBRACE = r'\{'
     RBRACE = r'\}'
     COMMA = r','
-    KEYWORD = r'[a-zA-Z_]\w*\b'
-    ERROR = r''
+    KEYWORD = r'KEYWORD'
+    ERROR = r'ERROR'
+    EOF = r'EOF'

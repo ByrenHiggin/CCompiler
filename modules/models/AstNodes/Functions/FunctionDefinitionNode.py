@@ -1,6 +1,5 @@
-from modules.models.AstNodes import AstNode
-from pydantic import BaseModel
+from modules.models.AstNodes.BaseNode import BaseNode
 
-class FunctionDefinitionNode(AstNode):
+class FunctionDefinitionNode(BaseNode):
 	name: str
-	body: AstNode
+	body: BaseNode

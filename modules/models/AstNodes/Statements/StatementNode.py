@@ -1,5 +1,4 @@
-from modules.models.AstNodes import AstNode
-from pydantic import BaseModel
+from modules.models.AstNodes.BaseNode import BaseNode
 
-class StatementNode(AstNode):
-	returnValue: AstNode
+class StatementNode(BaseNode):
+	returnValue: BaseNode

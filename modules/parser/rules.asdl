@@ -1,0 +1,4 @@
+program = Program(function_definition)
+function_definition = Function(identifier Name, statement Body)
+statement = Return(exp)
+exp = Constant(int)
