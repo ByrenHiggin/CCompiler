@@ -17,7 +17,7 @@
 				}
 			],
 			"console": "integratedTerminal",
-			"args": ["--parse","./writing-a-c-compiler-tests/tests/chapter_1/invalid_parse/unclosed_brace.c"]
+			"args": ["--codegen","./writing-a-c-compiler-tests/tests/chapter_1/valid/multi_digit.c"]
 		},
 		{
 			"name": "Python Debugger: All",

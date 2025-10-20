@@ -17,6 +17,7 @@ def main():
     argparser.add_argument('--lex',"-l", action='store_true', help='Perform lexical analysis')
     argparser.add_argument('--parse',"-p", action='store_true', help='Perform parsing')
     argparser.add_argument('--codegen',"-c", action='store_true', help='Perform codegen')
+    argparser.add_argument('--output', "-S", type=str, help='File location to process', default="output.s")
     argparser.add_argument('file', type=ascii, help='File to process')
     args = argparser.parse_args()
     print("Compiler starting...")
@@ -31,6 +32,9 @@ def main():
             if(args.parse):
                 sys.exit(0)
             print("codegen now")
+            asm = ast.toAsm()
+            with open(args.output, "w") as file_object:
+                file_object.write(asm)
             if(args.codegen):
                 print("Hello from ccompiler!")
             sys.exit(0)
