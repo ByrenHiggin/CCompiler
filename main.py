@@ -5,11 +5,13 @@ from modules.parser.ParserService import ParserService
 
 argparser = argparse.ArgumentParser(description="A sample script demonstrating argument parsing.")
 
-def handle_argument(arg):
+def handle_argument(arg: str) -> str:
     if arg == '--lex':
         return "Lexical analysis selected."
     if arg == '--parse':
         return "Parsing selected."
+    else:
+        return "No valid argument selected."
     
 def main():
     argparser.add_argument('--lex',"-l", action='store_true', help='Perform lexical analysis')
@@ -25,7 +27,7 @@ def main():
             tokens = lexer.lex_file(args.file.strip("'"))
             if(args.lex):
                 sys.exit(0)
-            ast = parser.parse_tokens(tokens)
+            ast = parser.parse_tokens(tokens) # type: ignore
             if(args.parse):
                 sys.exit(0)
             print("codegen now")
@@ -36,7 +38,7 @@ def main():
             print(f"{e}")
             sys.exit(1)
     else:
-        parser.print_help()
+        argparser.print_help()
 
 if __name__ == "__main__":
     main()
