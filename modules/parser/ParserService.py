@@ -66,7 +66,7 @@ class ParserService(BaseModel):
 		# Placeholder implementation
 		parameters = self.__parse_function_parameters()
 		body = self.__parse_statement()
-		return FunctionDefinitionNode(name=identifier.value, body=body)
+		return FunctionDefinitionNode(name="_"+identifier.value, body=body)
 
 	def __parse_declaration(self, type: LexerToken, identifier: LexerToken) -> BaseNode:
 		type_specifier = type

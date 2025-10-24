@@ -4,7 +4,7 @@ class FunctionDefinitionNode(BaseNode):
 	name: str
 	body: BaseNode
 	def toAsm(self) -> str:
-		return f'''	.globl _{self.name}
-_{self.name}:
+		return f'''	.globl {self.name}
+{self.name}:
 	{self.body.toAsm()}
 '''
