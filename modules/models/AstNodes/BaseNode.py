@@ -1,9 +1,17 @@
+from abc import abstractmethod
 from pydantic import BaseModel
 
 
 class BaseNode(BaseModel):
-	def toAsm(self) -> str:
-		return ";; Assembly code placeholder for BaseNode\n"
-	pass
-	def toTacky(self, instructions: list["BaseNode"]) -> "BaseNode": # type: ignore
-		return self
+    @abstractmethod
+    def accept(self, visitor, instructions):
+        """Accept a visitor - this is the key to the visitor pattern"""
+        pass
+    
+class IRNode(BaseNode):
+    def toAsm(self) -> str:
+        return ""  # Placeholder implementation
+        pass
+
+class Operand(IRNode):
+    pass

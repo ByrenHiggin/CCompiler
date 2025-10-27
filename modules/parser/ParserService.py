@@ -1,3 +1,4 @@
+import logging
 from typing import Callable, List
 
 from modules.models.AstNodes.BaseNode import BaseNode 
@@ -39,11 +40,11 @@ class ParserService():
 	
 	def __handle_unary_minus(self, token: LexerToken) -> BaseNode:
 		# Placeholder implementation
-		return Negate(value=self.__parse_expression())
+		return Negate(operand=self.__parse_expression())
 
 	def __handle_bitwise_not(self, token: LexerToken) -> BaseNode:
 		# Placeholder implementation
-		return BitwiseNot(value=self.__parse_expression())
+		return BitwiseNot(operand=self.__parse_expression())
 
 	def __handle_identifier(self, token: LexerToken) -> BaseNode:
 		# Placeholder implementation
@@ -52,19 +53,16 @@ class ParserService():
 	def __parse_keyword(self, token: LexerToken) -> BaseNode:
 		if token.value == KeyWordPatterns.RETURN.name:
 			return ReturnStatementNode(returnValue=self.__parse_expression())
-		elif token.value == KeyWordPatterns.VOID.name:
-			# Placeholder for VoidNode creation
-			return BaseNode()
 		else:
 			raise ValueError("Unknown keyword")
 
 	def __parse_assignment_expression(self, token: LexerToken) -> BaseNode:
 		# Placeholder implementation
-		return BaseNode()
+		raise NotImplementedError("Assignment expression parsing not implemented yet")
 
 	def __parse_conditional_expression(self, token: LexerToken) -> BaseNode:
 		# Placeholder implementation
-		return BaseNode()
+		raise NotImplementedError("Conditional expression parsing not implemented yet")
 
 	def __parse_expression(self) -> BaseNode:
 		# An Expression can start with various tokens like '(', CONSTANT, IDENTIFIER, unary operators etc.
@@ -95,14 +93,14 @@ class ParserService():
 
 	def __parse_function_block(self) -> BaseNode:
 		# A function block starts with '{' and ends with '}'
-		function_body: BaseNode = BaseNode()
+		function_body = None
 		token = self.token_iterator.consume_token()
 		if token.type != TokenPatterns.LBRACE:
 			raise ValueError("Expected '{' at the beginning of a function block")
 		while self.token_iterator.iterate_tokens_until_type_or_error(token.type, TokenPatterns.RBRACE):
 			function_body = self.__parse_statement()
 			token = self.token_iterator.consume_token()
-		if token.type != TokenPatterns.RBRACE:
+		if function_body is None or token.type != TokenPatterns.RBRACE:
 			raise ValueError("Invalid function block; Missing closing '}'")
 		return function_body
 		
@@ -117,7 +115,8 @@ class ParserService():
 			else:
 				if token.type == TokenPatterns.KEYWORD and token.value == KeyWordPatterns.VOID.name:
 					# Placeholder for parameter node creation
-					parameter_list.append(BaseNode())
+					logging.info("Function has void parameter list")
+     #parameter_list.append(BaseNode())
 		return parameter_list
 
 	def __parse_function(self, type: LexerToken, identifier: LexerToken) -> FunctionDefinitionNode:

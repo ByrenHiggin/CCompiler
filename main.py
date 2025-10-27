@@ -2,7 +2,9 @@ import sys
 import argparse
 import logging
 from modules.lexer.LexerService import LexerService
+from modules.parser.InstructionBuilder import InstructionBuilder
 from modules.parser.ParserService import ParserService
+from modules.parser.TackyGenerator import TackyGenerator
 from modules.utils.logger import setup_logger, get_logger, info, debug, error
 
 argparser = argparse.ArgumentParser(description="A C Compiler implementation.")
@@ -59,7 +61,8 @@ def main():
             
             # Tacky intermediate representation
             debug("Converting to Tacky IR...")
-            ast = ast.toTacky()
+            tacky = TackyGenerator()
+            tacky_ast = tacky.parse_ast(ast)
             info("Tacky IR generation complete.")
             if(args.tacky):
                 debug("Stopping after Tacky IR generation as requested.")
@@ -67,12 +70,13 @@ def main():
             
             # Assembly generation
             debug("Generating assembly code...")
-            asm = ast.toAsm()
+            code = InstructionBuilder()
+            asm = code.toAsm(tacky_ast)
             info(f"Assembly generation complete. Writing to {args.output}")
             
             with open(args.output, "w") as file_object:
                 file_object.write(asm)
-            
+
             info("Compilation completed successfully!")
             if(args.codegen):
                 sys.exit(0)
