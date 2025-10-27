@@ -9,3 +9,5 @@ class UnaryNode(BaseNode):
 	value: BaseNode
 	def toAsm(self) -> str:
 		return f"${self.value.toAsm()}"
+	def toTacky(self, instructions: list[BaseNode]) -> BaseNode:
+		return self

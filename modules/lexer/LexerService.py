@@ -3,6 +3,7 @@ import re
 from modules.models.LexerToken import LexerToken
 from modules.models.enums.keyword_patterns import KeyWordPatterns
 from modules.models.enums.token_type import TokenPatterns
+from modules.utils.logger import get_logger, debug, info
 
 
 class LexerService():

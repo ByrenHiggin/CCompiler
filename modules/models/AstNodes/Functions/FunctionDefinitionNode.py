@@ -8,3 +8,9 @@ class FunctionDefinitionNode(BaseNode):
 {self.name}:
 	{self.body.toAsm()}
 '''
+	def toTacky(self, instructions: list[BaseNode]) -> BaseNode:
+		results: list[BaseNode] = []
+		return FunctionDefinitionNode(
+			name=self.name,
+			body=self.body.toTacky(results)
+		)

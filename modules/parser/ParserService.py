@@ -4,7 +4,7 @@ from modules.models.AstNodes.BaseNode import BaseNode, ProgramNode
 from modules.models.AstNodes.Expressions.ConstantInteger import ConstantInteger
 from modules.models.AstNodes.Expressions.UnaryOperators import BitwiseNot, Negate
 from modules.models.AstNodes.Functions.FunctionDefinitionNode import FunctionDefinitionNode
-from modules.models.AstNodes.Statements.StatementNode import StatementNode
+from modules.models.AstNodes.Statements.StatementNode import ReturnStatementNode
 from modules.models.LexerToken import LexerToken
 from modules.models.enums.keyword_patterns import KeyWordPatterns
 from modules.models.enums.token_type import TokenPatterns
@@ -24,7 +24,7 @@ class ParserService():
 
 	def __handle_parentheses(self, token: LexerToken) -> BaseNode:
 		# A parenthesized expression starts with '(' and ends with ')'
-		statement: BaseNode = None
+		statement = None
 		while self.token_iterator.iterate_tokens_until_type_or_error(token.type, TokenPatterns.RPAREN):
 			statement = self.__parse_expression()
 			token = self.token_iterator.consume_token()
@@ -46,11 +46,11 @@ class ParserService():
 
 	def __handle_identifier(self, token: LexerToken) -> BaseNode:
 		# Placeholder implementation
-		return BaseNode()
+		raise NotImplementedError("Identifier handling not implemented yet")
 
 	def __parse_keyword(self, token: LexerToken) -> BaseNode:
 		if token.value == KeyWordPatterns.RETURN.name:
-			return StatementNode(returnValue=self.__parse_expression())
+			return ReturnStatementNode(returnValue=self.__parse_expression())
 		elif token.value == KeyWordPatterns.VOID.name:
 			# Placeholder for VoidNode creation
 			return BaseNode()
