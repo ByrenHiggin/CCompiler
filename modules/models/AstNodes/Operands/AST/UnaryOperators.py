@@ -1,8 +1,7 @@
 
 from modules.models.AstNodes.BaseNode import BaseNode
-from modules.models.AstNodes.Expressions.ExpressionNode import UnaryNode
-from modules.models.AstNodes.Expressions.Variable import Variable
-
+from modules.models.AstNodes.Operands.ExpressionNode import UnaryNode
+from modules.models.AstNodes.Operands.AST.Variable import Variable
 
 class BitwiseNot(UnaryNode):
 	value: BaseNode
@@ -37,8 +36,5 @@ class TackyUnary(BaseNode):
 	src: BaseNode
 	dest: BaseNode
 	def toAsm(self) -> str:
-		if self.operation.__class__ == BitwiseNot:
-			return f"Not {self.src.toAsm()} -> {self.dest.toAsm()}"
-		elif self.operation.__class__ == Negate:
-			return f"Neg {self.src.toAsm()} -> {self.dest.toAsm()}"
-		return f"{self.operation.toAsm()} {self.src.toAsm()} -> {self.dest.toAsm()}"
+		lines: list[str] = []
+		lines.append(f"    movq {self.src.toAsm()}, %rax")

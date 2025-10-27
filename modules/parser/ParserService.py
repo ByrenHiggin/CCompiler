@@ -1,9 +1,10 @@
 from typing import Callable, List
 
-from modules.models.AstNodes.BaseNode import BaseNode, ProgramNode
-from modules.models.AstNodes.Expressions.ConstantInteger import ConstantInteger
-from modules.models.AstNodes.Expressions.UnaryOperators import BitwiseNot, Negate
+from modules.models.AstNodes.BaseNode import BaseNode 
+from modules.models.AstNodes.Operands.AST.ConstantInteger import ConstantInteger
+from modules.models.AstNodes.Operands.AST.UnaryOperators import BitwiseNot, Negate
 from modules.models.AstNodes.Functions.FunctionDefinitionNode import FunctionDefinitionNode
+from modules.models.AstNodes.ProgramNode import ProgramNode
 from modules.models.AstNodes.Statements.StatementNode import ReturnStatementNode
 from modules.models.LexerToken import LexerToken
 from modules.models.enums.keyword_patterns import KeyWordPatterns

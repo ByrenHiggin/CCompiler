@@ -1,13 +1,9 @@
 from modules.models.AstNodes.BaseNode import BaseNode
+from modules.models.AstNodes.Operands.ExpressionNode import ExpressionNode
 
-class ExpressionNode(BaseNode):
+class Immediate(ExpressionNode):
 	value: str
 	def toAsm(self) -> str:
 		return f"${self.value}"
-
-class UnaryNode(BaseNode):
-	value: BaseNode
-	def toAsm(self) -> str:
-		return f"${self.value.toAsm()}"
 	def toTacky(self, instructions: list[BaseNode]) -> BaseNode:
 		return self

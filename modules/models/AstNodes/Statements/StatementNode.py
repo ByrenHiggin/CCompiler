@@ -9,8 +9,7 @@ class ReturnStatementNode(BaseNode):
 		for instr in self.instructions or []:
 			lines.append(instr.toAsm())
 		lines.append(f"mov	{self.returnValue.toAsm()}, %eax")
-		lines.append("ret")
-		return "\n".join(lines)
+		return "\n\t".join(lines)
 
 	def toTacky(self, instructions: list[BaseNode]) -> BaseNode:
 		result: BaseNode = self.returnValue.toTacky(instructions)
