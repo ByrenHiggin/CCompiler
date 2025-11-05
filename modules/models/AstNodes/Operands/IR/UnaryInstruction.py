@@ -1,13 +1,13 @@
 from enum import Enum
-from modules.models.AstNodes.BaseNode import BaseNode, IRNode, Operand
+from modules.models.AstNodes.BaseNode import IR_Expression, IRNode, Operand
 
 class UnaryOperationEnum(Enum):
 	NEG = "NEG"
 	NOT = "NOT"
 
-class UnaryInstruction(IRNode):
+class UnaryInstruction(IR_Expression):
 	operator: UnaryOperationEnum
-	operand: Operand
+	operand: IR_Expression
 	def accept(self, visitor, instructions):
 		return visitor.visit_unary_instruction(self,instructions)
 	def toAsm(self) -> str:

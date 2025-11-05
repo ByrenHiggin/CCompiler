@@ -13,5 +13,9 @@ class IRNode(BaseNode):
         return ""  # Placeholder implementation
         pass
 
-class Operand(IRNode):
+
+class IR_Expression(IRNode):
+    pass
+
+class Operand(IR_Expression):
     pass
