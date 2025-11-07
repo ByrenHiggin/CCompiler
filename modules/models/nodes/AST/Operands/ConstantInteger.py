@@ -1,5 +1,5 @@
-from modules.models.AstNodes.AST.Operands.ExpressionNode import ExpressionNode
-from modules.models.AstNodes.BaseNode import Operand
+from modules.models.nodes.AST.Operands.ExpressionNode import ExpressionNode
+from modules.models.nodes.BaseNode import Operand
 
 class ConstantInteger(ExpressionNode):
 	value: str

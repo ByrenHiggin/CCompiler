@@ -1,5 +1,5 @@
 from enum import Enum
-from modules.models.AstNodes.BaseNode import IR_Expression, IRNode, Operand
+from modules.models.nodes.BaseNode import IR_Expression, IRNode, Operand
 
 class UnaryOperationEnum(Enum):
 	NEG = "NEG"

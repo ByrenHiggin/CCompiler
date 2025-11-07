@@ -1,4 +1,4 @@
-from modules.models.AstNodes.BaseNode import IRNode
+from modules.models.nodes.BaseNode import IRNode
 
 
 class IRFunctionDefinition(IRNode):

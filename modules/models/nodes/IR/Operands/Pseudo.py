@@ -1,4 +1,4 @@
-from modules.models.AstNodes.BaseNode import Operand
+from modules.models.nodes.BaseNode import Operand
 
 class Pseudo(Operand):
 	value: str

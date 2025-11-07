@@ -1,5 +1,5 @@
-from modules.models.AstNodes.BaseNode import IRNode 
-from modules.models.AstNodes.IR.Functions.IRFunctionDefinition import IRFunctionDefinition
+from modules.models.nodes.BaseNode import IRNode 
+from modules.models.nodes.IR.Functions.IRFunctionDefinition import IRFunctionDefinition
  
 class IRProgramNode(IRNode):
     functions: list[IRFunctionDefinition]

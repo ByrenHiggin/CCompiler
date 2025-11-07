@@ -8,7 +8,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from modules.lexer.LexerService import LexerService
-from modules.models.LexerToken import LexerToken
+from modules.models.lexer.LexerToken import LexerToken
 from modules.models.enums.token_type import TokenPatterns
 from modules.models.enums.keyword_patterns import KeyWordPatterns
 

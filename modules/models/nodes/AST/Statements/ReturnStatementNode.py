@@ -1,4 +1,4 @@
-from modules.models.AstNodes.BaseNode import BaseNode
+from modules.models.nodes.BaseNode import BaseNode
 
 class ReturnStatementNode(BaseNode):
     instructions: list[BaseNode] | None = None

@@ -1,4 +1,4 @@
-from modules.models.AstNodes.BaseNode import IRNode, Operand
+from modules.models.nodes.BaseNode import IRNode, Operand
 
 
 class IRreturn(IRNode):

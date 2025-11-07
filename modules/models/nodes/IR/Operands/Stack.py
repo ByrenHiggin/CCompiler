@@ -1,4 +1,4 @@
-from modules.models.AstNodes.BaseNode import BaseNode, Operand
+from modules.models.nodes.BaseNode import BaseNode, Operand
 
 class Stack(Operand):
 	offset: int

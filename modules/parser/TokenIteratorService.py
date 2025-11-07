@@ -1,5 +1,5 @@
 from typing import List
-from modules.models.LexerToken import LexerToken
+from modules.models.lexer.LexerToken import LexerToken
 from modules.models.enums.token_type import TokenPatterns
 
 class TokenIteratorService():

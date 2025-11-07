@@ -1,7 +1,7 @@
 import random
 import string
 
-from modules.models.AstNodes import BaseNode
+from modules.models.nodes import BaseNode
 
 class Variable(BaseNode):
 	name: str
