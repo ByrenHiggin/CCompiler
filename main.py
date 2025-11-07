@@ -1,11 +1,11 @@
 import sys
 import argparse
 import logging
+from modules.codeGenerator.AssemblyGenerator import AssemblyGenerator
 from modules.lexer.LexerService import LexerService
-from modules.parser.InstructionBuilder import InstructionBuilder
 from modules.parser.ParserService import ParserService
 from modules.parser.TackyGenerator import TackyGenerator
-from modules.utils.logger import setup_logger, get_logger, info, debug, error
+from modules.utils.logger import setup_logger 
 
 argparser = argparse.ArgumentParser(description="A C Compiler implementation.")
 
@@ -31,58 +31,59 @@ def main():
     # Setup logger based on arguments
     log_level = logging.DEBUG if args.verbose else logging.INFO
     log_file = args.log_file if hasattr(args, 'log_file') and args.log_file else None
-    setup_logger(level=log_level, log_file=log_file)
+    logger = setup_logger(level=log_level, log_file=log_file)
     
-    info("Compiler starting...")
-    debug(f"Arguments: {args}")
+    logger.info("Compiler starting...")
+    logger.debug(f"Arguments: {args}")
     
     if(args.file):
         try:
             file_path = args.file.strip("'")
-            info(f"Processing file: {file_path}")
+            logger.info(f"Processing file: {file_path}")
             
             # Lexical analysis
-            debug("Starting lexical analysis...")
+            logger.debug("Starting lexical analysis...")
             lexer = LexerService()
             tokens = lexer.lex_file(file_path)
-            info(f"Lexical analysis complete. Generated {len(tokens)} tokens.")
+            logger.info(f"Lexical analysis complete. Generated {len(tokens)} tokens.")
             if(args.lex):
-                debug("Stopping after lexical analysis as requested.")
+                logger.debug("Stopping after lexical analysis as requested.")
                 sys.exit(0)
             
             # Parsing
-            debug("Starting parsing...")
+            logger.debug("Starting parsing...")
             parser = ParserService()
             ast = parser.parse_lex(tokens) # type: ignore
-            info("Parsing complete. AST generated.")
+            logger.info("Parsing complete. AST generated.")
             if(args.parse):
-                debug("Stopping after parsing as requested.")
+                logger.debug("Stopping after parsing as requested.")
                 sys.exit(0)
             
             # Tacky intermediate representation
-            debug("Converting to Tacky IR...")
+            logger.debug("Converting to Tacky IR...")
             tacky = TackyGenerator()
             tacky_ast = tacky.parse_ast(ast)
-            info("Tacky IR generation complete.")
+            logger.info("Tacky IR generation complete.")
             if(args.tacky):
-                debug("Stopping after Tacky IR generation as requested.")
+                logger.debug("Stopping after Tacky IR generation as requested.")
                 sys.exit(0)
             
             # Assembly generation
-            debug("Generating assembly code...")
-            code = InstructionBuilder()
-            asm = code.toAsm(tacky_ast)
-            info(f"Assembly generation complete. Writing to {args.output}")
+            logger.debug("Generating assembly code...")
+            assembly_generator = AssemblyGenerator()
+            asm: list[str] = []
+            assembly_generator.generate(tacky_ast, asm)
+            logger.info(f"Assembly generation complete. Writing to {args.output}")
             
             with open(args.output, "w") as file_object:
-                file_object.write(asm)
+                file_object.writelines(asm)
 
-            info("Compilation completed successfully!")
+            logger.info("Compilation completed successfully!")
             if(args.codegen):
                 sys.exit(0)
         except Exception as e:
-            error(f"Compilation failed: {e}")
-            debug("Exception details:", exc_info=True)
+            logger.error(f"Compilation failed: {e}")
+            logger.debug("Exception details:", exc_info=True)
             sys.exit(1)
     else:
         argparser.print_help()

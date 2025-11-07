@@ -12,5 +12,4 @@ class Register(Operand):
 	value: RegisterEnum
 	def accept(self, visitor, instructions):
 		return visitor.visit_register(self, instructions)
-	def toAsm(self) -> str:
-		return f"%{self.value.value.lower()}"
+		

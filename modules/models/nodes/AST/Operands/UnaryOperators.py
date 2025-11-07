@@ -1,6 +1,6 @@
 
+from modules.models.AstNodes.AST.Operands.ExpressionNode import UnaryNode
 from modules.models.AstNodes.BaseNode import BaseNode
-from modules.models.AstNodes.Operands.ExpressionNode import UnaryNode
 
 class BitwiseNot(UnaryNode):
 	operand: BaseNode

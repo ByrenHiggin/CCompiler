@@ -1,13 +1,13 @@
 import logging
 from typing import Callable, List
 
-from modules.models.AstNodes.BaseNode import BaseNode 
-from modules.models.AstNodes.Operands.AST.ConstantInteger import ConstantInteger
-from modules.models.AstNodes.Operands.AST.UnaryOperators import BitwiseNot, Negate
-from modules.models.AstNodes.Functions.FunctionDefinitionNode import FunctionDefinitionNode
-from modules.models.AstNodes.ProgramNode import ProgramNode
-from modules.models.AstNodes.Statements.StatementNode import ReturnStatementNode
-from modules.models.LexerToken import LexerToken
+from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
+from modules.models.nodes.AST.Operands.ConstantInteger import ConstantInteger
+from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
+from modules.models.nodes.AST.Statements.ReturnStatementNode import ReturnStatementNode
+from modules.models.nodes.BaseNode import BaseNode 
+from modules.models.nodes.ProgramNode import ProgramNode
+from modules.models.lexer.LexerToken import LexerToken
 from modules.models.enums.keyword_patterns import KeyWordPatterns
 from modules.models.enums.token_type import TokenPatterns
 from modules.parser.TokenIteratorService import TokenIteratorService

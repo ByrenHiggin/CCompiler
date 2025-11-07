@@ -9,10 +9,7 @@ class BaseNode(BaseModel):
         pass
     
 class IRNode(BaseNode):
-    def toAsm(self) -> str:
-        return ""  # Placeholder implementation
-        pass
-
+    pass
 
 class IR_Expression(IRNode):
     pass
