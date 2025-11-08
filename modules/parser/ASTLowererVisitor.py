@@ -1,8 +1,9 @@
 
 from typing import List
+from modules.models.nodes.AST.Statements.ReturnStatementNode import StatementNode
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
 from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
-from modules.models.nodes.BaseNode import BaseNode
+from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
@@ -11,7 +12,8 @@ from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
 from modules.parser.StackAllocator import StackAllocator
 
 
-class ASTLowerer:
+class ASTLowerer(VisitorModel):
+    allocator: StackAllocator
     def __init__(self, allocator: StackAllocator):
         self.allocator = allocator
 
@@ -37,14 +39,14 @@ class ASTLowerer:
         # For constants, just return the constant value
         return Immediate(value=node.value)
     
-    def visit_return_statement(self, node: BaseNode, instructions: List[BaseNode]):
+    def visit_return_statement(self, node:StatementNode, instructions: List[BaseNode]) -> BaseNode:
         # Handle return statement
-        return_value: BaseNode = node.returnValue.accept(self, instructions)
+        return_value: IRNode = node.value.accept(self, instructions)
         instructions.append(IRMoveValue(src=return_value, dest=Register(value=RegisterEnum.EAX)))
         instructions.append(IRreturn(value=Register(value=RegisterEnum.EAX)))  # Placeholder for stack cleanup
         return return_value
     
-    def visit_function_definition(self, node: FunctionDefinitionNode, instructions: List[BaseNode]):
+    def visit_function_definition(self, node: FunctionDefinitionNode, instructions: List[BaseNode])-> BaseNode:
         # Handle function definition
         return node.body.accept(self, instructions)
     

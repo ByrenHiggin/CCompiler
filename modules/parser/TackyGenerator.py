@@ -1,5 +1,6 @@
-from modules.models.nodes.BaseNode import BaseNode 
-from modules.models.nodes.ProgramNode import ProgramNode
+from typing import List
+from modules.models.nodes.BaseNode import BaseNode, IRNode 
+from modules.models.nodes.AST.ProgramNode import ProgramNode
 from modules.parser.ASTLegalizerVisitor import ASTLegalizer
 from modules.parser.ASTLowererVisitor import ASTLowerer
 from modules.models.nodes.IR.IRProgramNode import IRFunctionDefinition, IRProgramNode
@@ -19,11 +20,11 @@ class TackyGenerator:
             legalizer = ASTLegalizer(allocator=allocator)
             
             #phase 1 - lowerer
-            lowered_instructions = []
+            lowered_instructions: List[BaseNode] = []
             func.accept(lowerer, lowered_instructions)
             
             #phase 2 - legalizer
-            legalized_instructions = []
+            legalized_instructions: List[IRNode] = []
             for instr in lowered_instructions:
                 instr.accept(legalizer, legalized_instructions)
             

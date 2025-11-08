@@ -6,8 +6,7 @@ class StackAllocator:
     def __init__(self) -> None:
         self.temp_counter = 0
         self.stack_offset = 0
-        self.register_map: dict[str, int] = {
-        }
+        self.register_map: dict[str, int] = {}
         
     def allocate_pseudo(self, name:str, size: int = 4) -> Pseudo:
         self.stack_offset -= size

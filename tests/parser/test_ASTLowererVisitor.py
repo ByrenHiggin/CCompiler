@@ -1,3 +1,4 @@
+# type: ignore
 import unittest
 from unittest.mock import Mock, patch, MagicMock
 import sys
@@ -22,7 +23,7 @@ class TestASTLowerer(unittest.TestCase):
         """Set up test fixtures before each test method."""
         self.allocator = StackAllocator()
         self.lowerer = ASTLowerer(self.allocator)
-        self.instructions = []
+        self.instructions: list[BaseNode] = []
 
     def test_init(self):
         """Test that ASTLowerer initializes correctly."""
@@ -93,7 +94,7 @@ class TestASTLowerer(unittest.TestCase):
         
         # First instruction: move immediate to pseudo
         self.assertIsInstance(self.instructions[0], IRMoveValue)
-        self.assertIsInstance(self.instructions[0].src, Immediate)
+        self.assertIsInstance(self.instructions[0].src, Immediate) 
         self.assertEqual(self.instructions[0].src.value, "7")
         self.assertIsInstance(self.instructions[0].dest, Pseudo)
         
@@ -134,18 +135,17 @@ class TestASTLowerer(unittest.TestCase):
     def test_visit_return_statement(self):
         """Test visiting a return statement."""
         # Mock return value
-        return_value_node = Mock()
-        return_value_node.accept.return_value = Immediate(value="42")
+        from modules.models.nodes.AST.Statements.ReturnStatementNode import ReturnStatementNode
+        from modules.models.nodes.AST.Operands.ConstantInteger import ConstantInteger
+        return_value_node = ConstantInteger(value="10")
         
-        # Mock return statement node
-        return_node = Mock()
-        return_node.returnValue = return_value_node
+        return_node = ReturnStatementNode(value=return_value_node)
         
         result = self.lowerer.visit_return_statement(return_node, self.instructions)
         
         # Should return the return value
         self.assertIsInstance(result, Immediate)
-        self.assertEqual(result.value, "42")
+        self.assertEqual(result.value, "10")
         
         # Should generate two instructions: move to EAX and return
         self.assertEqual(len(self.instructions), 2)
@@ -153,7 +153,7 @@ class TestASTLowerer(unittest.TestCase):
         # First instruction: move return value to EAX
         self.assertIsInstance(self.instructions[0], IRMoveValue)
         self.assertIsInstance(self.instructions[0].src, Immediate)
-        self.assertEqual(self.instructions[0].src.value, "42")
+        self.assertEqual(self.instructions[0].src.value, "10")
         self.assertIsInstance(self.instructions[0].dest, Register)
         self.assertEqual(self.instructions[0].dest.value, RegisterEnum.EAX)
         

@@ -6,7 +6,7 @@ from modules.models.nodes.AST.Operands.ConstantInteger import ConstantInteger
 from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
 from modules.models.nodes.AST.Statements.ReturnStatementNode import ReturnStatementNode
 from modules.models.nodes.BaseNode import BaseNode 
-from modules.models.nodes.ProgramNode import ProgramNode
+from modules.models.nodes.AST.ProgramNode import ProgramNode
 from modules.models.lexer.LexerToken import LexerToken
 from modules.models.enums.keyword_patterns import KeyWordPatterns
 from modules.models.enums.token_type import TokenPatterns
@@ -52,7 +52,7 @@ class ParserService():
 
 	def __parse_keyword(self, token: LexerToken) -> BaseNode:
 		if token.value == KeyWordPatterns.RETURN.name:
-			return ReturnStatementNode(returnValue=self.__parse_expression())
+			return ReturnStatementNode(value=self.__parse_expression())
 		else:
 			raise ValueError("Unknown keyword")
 

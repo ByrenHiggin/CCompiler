@@ -1,8 +1,9 @@
-from modules.models.nodes.BaseNode import IRNode, Operand
+from typing import Any, List
+from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
 
 class IRMoveValue(IRNode):
-    src: Operand
-    dest: Operand
+	src: IRNode 
+	dest: IRNode
 
-    def accept(self, visitor, instructions):
-        return visitor.visit_ir_move_value(self, instructions)
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_ir_move_value(self, instructions)

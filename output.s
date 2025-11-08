@@ -1,12 +1,14 @@
-	.globl _main
-_main:
+.globl __main
+__main:
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $8, %rsp
-	Neg $3 -> tmp.WL2No4Dv
-	Not tmp.WL2No4Dv -> tmp.iE7YkGoJ
-	mov	tmp.iE7YkGoJ, %eax
-	
+	movl $5, -4(%rbp)
+	notl -4(%rbp)
+	movl -4(%rbp), %r10d
+	movl %r10d, -8(%rbp)
+	negl -8(%rbp)
+	movl -8(%rbp), %eax
 	movq %rbp, %rsp
 	popq %rbp
 	ret

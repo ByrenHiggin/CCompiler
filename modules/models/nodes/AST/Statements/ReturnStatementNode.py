@@ -1,7 +1,10 @@
-from modules.models.nodes.BaseNode import BaseNode
+from typing import Any, List
+from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
 
-class ReturnStatementNode(BaseNode):
-    instructions: list[BaseNode] | None = None
-    returnValue: BaseNode
-    def accept(self, visitor, instructions):
-        return visitor.visit_return_statement(self, instructions)
+class StatementNode(BaseNode):
+	value: BaseNode
+
+class ReturnStatementNode(StatementNode):
+	instructions: list[BaseNode] | None = None
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> IRNode:
+		return visitor.visit_return_statement(self, instructions)

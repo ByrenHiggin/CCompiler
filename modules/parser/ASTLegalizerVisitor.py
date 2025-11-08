@@ -1,6 +1,6 @@
 
 from typing import List
-from modules.models.nodes.BaseNode import IRNode
+from modules.models.nodes.BaseNode import IRNode, VisitorModel
 from modules.models.nodes.IR.IRMoveValue import IRMoveValue
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction
@@ -10,7 +10,7 @@ from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
 from modules.parser.StackAllocator import StackAllocator
 
 
-class ASTLegalizer():
+class ASTLegalizer(VisitorModel):
     def __init__(self, allocator: StackAllocator):
         self.allocator = allocator
 

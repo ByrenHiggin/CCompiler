@@ -1,3 +1,5 @@
+# type: ignore
+from typing import List
 import unittest
 from unittest.mock import Mock, patch
 import sys
@@ -18,7 +20,7 @@ class TestX86_64AssemblyVisitor(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures before each test method."""
         self.visitor = x86_64_AssemblyVisitor()
-        self.instructions = []
+        self.instructions: List[str] = []
 
     def test_init(self):
         """Test that x86_64_AssemblyVisitor initializes correctly."""

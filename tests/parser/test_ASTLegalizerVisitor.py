@@ -1,15 +1,16 @@
+# type: ignore
+from typing import List
 import unittest
-from unittest.mock import Mock, patch
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
+from modules.models.nodes.BaseNode import IRNode
 from modules.parser.ASTLegalizerVisitor import ASTLegalizer
 from modules.parser.StackAllocator import StackAllocator
 from modules.models.nodes.IR.IRMoveValue import IRMoveValue
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
-from modules.models.nodes.IR.Operands.Pseudo import Pseudo
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
 from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
@@ -20,7 +21,7 @@ class TestASTLegalizer(unittest.TestCase):
         """Set up test fixtures before each test method."""
         self.allocator = StackAllocator()
         self.legalizer = ASTLegalizer(self.allocator)
-        self.instructions = []
+        self.instructions: List[IRNode] = []
 
     def test_init(self):
         """Test that ASTLegalizer initializes correctly."""
