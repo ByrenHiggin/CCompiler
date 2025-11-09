@@ -1,9 +1,12 @@
 
 from typing import List
+from modules.models.nodes.AST.Operands.BinaryOperators import BinaryAdd, BinaryDivide, BinaryMinus, BinaryModulus, BinaryMultiply
+from modules.models.nodes.AST.Operands.ExpressionNode import BinaryNode
 from modules.models.nodes.AST.Statements.ReturnStatementNode import StatementNode
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
 from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
 from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
+from modules.models.nodes.IR.Operands.BinaryInstruction import BinaryInstruction, BinaryOperationEnum
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
@@ -16,6 +19,30 @@ class ASTLowerer(VisitorModel):
     allocator: StackAllocator
     def __init__(self, allocator: StackAllocator):
         self.allocator = allocator
+        
+    
+
+    def visit_binary_expression(self, node: BinaryNode, instructions: List[BaseNode]):
+        left_result = node.left.accept(self, instructions)
+        right_result = node.right.accept(self, instructions)
+        if isinstance(node, BinaryMinus):
+            operand = BinaryOperationEnum.MINUS
+        elif isinstance(node, BinaryAdd):
+            operand = BinaryOperationEnum.ADD
+        elif isinstance(node, BinaryMultiply):  
+            operand = BinaryOperationEnum.MULTIPLY
+        elif isinstance(node, BinaryDivide):
+            operand = BinaryOperationEnum.DIVIDE
+        elif isinstance(node, BinaryModulus):
+            operand = BinaryOperationEnum.MODULUS
+        else:
+            raise NotImplementedError(f"Binary operation for {type(node)} not implemented in ASTLowerer")
+
+        temp_name = f"tmp.{self.allocator.temp_counter}"
+        self.allocator.temp_counter += 1
+        temp = self.allocator.allocate_pseudo(temp_name)
+        instructions.append(BinaryInstruction(Operation=operand, left=temp, right=right_result, destination=temp))
+        return temp
 
     def visit_negate(self, node: Negate, instructions: List[BaseNode]):
         operand_result = node.operand.accept(self, instructions)

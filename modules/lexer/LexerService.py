@@ -1,8 +1,8 @@
 from typing import List
 import re
-from modules.models.lexer.LexerToken import LexerToken
+from modules.models.lexer.LexerToken import LexerToken, Token
 from modules.models.enums.keyword_patterns import KeyWordPatterns
-from modules.models.enums.token_type import TokenPatterns
+from modules.models.enums.token_type import TokenPatterns, TokenType
 from modules.utils.logger import get_logger, debug, info
 
 
@@ -67,9 +67,20 @@ class LexerService():
 			input = input[len(lexerToken.value):]
 		return tokens
 
-	def lex_file(self,file_name: str) -> List[LexerToken]:
-		tokens: List[LexerToken] = []
+	def map_token_type(self, token: LexerToken) -> TokenType:
+		return TokenType[token.type.name]
+
+	def lex_file(self,file_name: str) -> List[Token]:
+		sanitized_tokens: List[Token] = []
+		line_number = 0
 		with open(file_name, 'r') as file:
 			for line in file:
-				tokens = tokens + self.__tokenize_string(line)
-		return tokens
+				line_number += 1
+				tokens = self.__tokenize_string(line)
+				for tkn in tokens:
+					sanitized_tokens.append(Token(
+						type=self.map_token_type(tkn),
+						lineNumber=line_number,
+						value=tkn.value
+					))
+		return sanitized_tokens

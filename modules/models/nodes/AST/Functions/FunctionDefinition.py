@@ -3,6 +3,7 @@ from modules.models.nodes.BaseNode import BaseNode, VisitorModel
 
 class FunctionDefinitionNode(BaseNode):
 	name: str
+	params: List[BaseNode]
 	body: BaseNode
  
 	def accept(self, visitor: VisitorModel, instructions: List[BaseNode])->BaseNode:

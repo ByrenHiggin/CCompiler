@@ -5,3 +5,7 @@ class ExpressionNode(BaseNode):
 
 class UnaryNode(BaseNode):
 	operand: BaseNode
+
+class BinaryNode(BaseNode):
+	left: BaseNode
+	right: BaseNode

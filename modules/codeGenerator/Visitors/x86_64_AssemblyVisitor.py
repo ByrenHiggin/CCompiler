@@ -1,4 +1,4 @@
-from modules.models.nodes.BaseNode import IRNode, VisitorModel
+from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
 from modules.models.nodes.IR.IRMoveValue import IRMoveValue
 from modules.models.nodes.IR.IRProgramNode import IRFunctionDefinition
 from modules.models.nodes.IR.Operands.Immediate import Immediate
@@ -11,7 +11,7 @@ class x86_64_AssemblyVisitor(VisitorModel):
     def __init__(self) -> None:
         self.lines: list[str] = []
         
-    def _operand_to_asm(self, operand: IRNode) -> str:
+    def _operand_to_asm(self, operand: BaseNode) -> str:
         if isinstance(operand, Register):
             reg_map = {
                 RegisterEnum.EAX: "%eax",
