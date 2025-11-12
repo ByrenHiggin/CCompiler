@@ -3,7 +3,6 @@ import argparse
 import logging
 from modules.codeGenerator.AssemblyGenerator import AssemblyGenerator
 from modules.lexer.LexerService import LexerService
-from modules.parser.ParserService import ParserService
 from modules.parser.ParserServiceV2 import ParserServiceV2
 from modules.parser.TackyGenerator import TackyGenerator
 from modules.utils.logger import setup_logger 

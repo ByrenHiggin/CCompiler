@@ -21,7 +21,6 @@ _main:
 	movl $24, %eax
 	cdq
 	idivl -20(%rbp)
-	movl %edx, %eax
 	movq %rbp, %rsp
 	popq %rbp
 	ret

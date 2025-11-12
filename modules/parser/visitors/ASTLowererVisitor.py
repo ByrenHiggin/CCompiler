@@ -6,13 +6,13 @@ from modules.models.nodes.AST.Statements.ReturnStatementNode import StatementNod
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
 from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
 from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
-from modules.models.nodes.IR.Operands.BinaryInstruction import BinaryInstruction, BinaryOperationEnum
+from modules.models.nodes.IR.Operands.BinaryInstruction import AddInstruction, BinaryInstruction, BinaryOperationEnum, DivInstruction, ModInstruction, MulInstruction, SubInstruction
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
 from modules.models.nodes.IR.IRMoveValue import IRMoveValue
 from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
-from modules.parser.StackAllocator import StackAllocator
+from modules.parser.visitors.StackAllocator import StackAllocator
 
 
 class ASTLowerer(VisitorModel):
@@ -36,11 +36,11 @@ class ASTLowerer(VisitorModel):
         
         if(op == BinaryOperationEnum.MODULUS):
             target_pseudo = self.allocator.allocate_pseudo(f"reg.{RegisterEnum.EDX}")
-            instructions.append(BinaryInstruction(Operation=op, left=src_pseudo, right=dest_pseudo))
+            instructions.append(ModInstruction(src=src_pseudo, dest=dest_pseudo))
             instructions.append(IRMoveValue(src=target_pseudo, dest=dest_pseudo))
             return dest_pseudo
         else:
-            instructions.append(BinaryInstruction(Operation=op, left=src_pseudo, right=dest_pseudo))
+            instructions.append(DivInstruction(src=src_pseudo, dest=dest_pseudo))
             return dest_pseudo
     
     def __visit_add_sub_or_mult(self, node: BinaryNode, instructions: List[BaseNode], op: BinaryOperationEnum):
@@ -52,7 +52,15 @@ class ASTLowerer(VisitorModel):
         scratch_name = f"reg.{RegisterEnum.R11.name}"
         scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
         instructions.append(IRMoveValue(src=left_result, dest=scratch_pseudo))
-        instructions.append(BinaryInstruction(Operation=op, left=scratch_pseudo, right=right_result, destination=scratch_pseudo))
+        match op:
+            case BinaryOperationEnum.ADD:
+                instructions.append(AddInstruction(src=scratch_pseudo, dest=right_result))
+            case BinaryOperationEnum.MINUS:
+                instructions.append(SubInstruction(src=scratch_pseudo, dest=right_result))
+            case BinaryOperationEnum.MULTIPLY:
+                instructions.append(MulInstruction(src=scratch_pseudo, dest=right_result))
+            case _:
+                raise NotImplementedError(f"Operation {op} not implemented in __visit_add_sub_or_mult")                           
         instructions.append(IRMoveValue(src=scratch_pseudo, dest=dest_pseudo))
         return dest_pseudo
      

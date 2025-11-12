@@ -4,7 +4,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from modules.parser.StackAllocator import StackAllocator
+from modules.parser.visitors.StackAllocator import StackAllocator
 from modules.models.nodes.IR.Operands.Pseudo import Pseudo
 from modules.models.nodes.IR.Operands.Stack import Stack
 

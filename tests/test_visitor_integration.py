@@ -39,7 +39,7 @@ class TestVisitorIntegration(unittest.TestCase):
         try:
             from modules.parser.ASTLegalizerVisitor import ASTLegalizer
             from modules.parser.ASTLowererVisitor import ASTLowerer
-            from modules.parser.StackAllocator import StackAllocator
+            from modules.parser.visitors.StackAllocator import StackAllocator
             from modules.codeGenerator.Visitors.x86_64_AssemblyVisitor import x86_64_AssemblyVisitor
             
             # Try to instantiate each component
@@ -59,7 +59,7 @@ class TestVisitorIntegration(unittest.TestCase):
 
     def test_stack_allocator_integration(self):
         """Test that StackAllocator integrates properly with visitors."""
-        from modules.parser.StackAllocator import StackAllocator
+        from modules.parser.visitors.StackAllocator import StackAllocator
         from modules.parser.ASTLegalizerVisitor import ASTLegalizer
         from modules.parser.ASTLowererVisitor import ASTLowerer
         
@@ -76,7 +76,7 @@ class TestVisitorIntegration(unittest.TestCase):
         from modules.parser.ASTLegalizerVisitor import ASTLegalizer
         from modules.parser.ASTLowererVisitor import ASTLowerer
         from modules.codeGenerator.Visitors.x86_64_AssemblyVisitor import x86_64_AssemblyVisitor
-        from modules.parser.StackAllocator import StackAllocator
+        from modules.parser.visitors.StackAllocator import StackAllocator
         
         allocator = StackAllocator()
         legalizer = ASTLegalizer(allocator)
@@ -100,7 +100,7 @@ class TestVisitorIntegration(unittest.TestCase):
 
     def test_visitor_error_handling(self):
         """Test that visitors handle errors gracefully."""
-        from modules.parser.StackAllocator import StackAllocator
+        from modules.parser.visitors.StackAllocator import StackAllocator
         from modules.models.nodes.IR.Operands.Pseudo import Pseudo
         
         allocator = StackAllocator()

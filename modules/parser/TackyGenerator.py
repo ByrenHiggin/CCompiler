@@ -1,10 +1,10 @@
 from typing import List
 from modules.models.nodes.BaseNode import BaseNode, IRNode 
 from modules.models.nodes.AST.ProgramNode import ProgramNode
-from modules.parser.ASTLegalizerVisitor import ASTLegalizer
-from modules.parser.ASTLowererVisitor import ASTLowerer
+from modules.parser.visitors.ASTLegalizerVisitor import ASTLegalizer
+from modules.parser.visitors.ASTLowererVisitor import ASTLowerer
 from modules.models.nodes.IR.IRProgramNode import IRFunctionDefinition, IRProgramNode
-from modules.parser.StackAllocator import StackAllocator
+from modules.parser.visitors.StackAllocator import StackAllocator
 
 class TackyGenerator:
     def __init__(self):

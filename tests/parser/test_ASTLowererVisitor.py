@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from modules.parser.ASTLowererVisitor import ASTLowerer
-from modules.parser.StackAllocator import StackAllocator
+from modules.parser.visitors.StackAllocator import StackAllocator
 from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
 from modules.models.nodes.BaseNode import BaseNode

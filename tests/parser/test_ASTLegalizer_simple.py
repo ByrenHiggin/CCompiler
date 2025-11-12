@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from modules.parser.ASTLegalizerVisitor import ASTLegalizer
-from modules.parser.StackAllocator import StackAllocator
+from modules.parser.visitors.StackAllocator import StackAllocator
 from modules.models.nodes.IR.IRMoveValue import IRMoveValue
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
