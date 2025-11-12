@@ -4,7 +4,9 @@ from enum import Enum
 
 class RegisterEnum(Enum):
 	EAX = "EAX"
+	EDX = "EDX"
 	R10 = "R10"
+	R11 = "R11"
 
 	def __str__(self) -> str:
 		return self.value

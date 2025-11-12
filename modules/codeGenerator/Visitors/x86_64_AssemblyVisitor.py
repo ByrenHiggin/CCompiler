@@ -1,23 +1,27 @@
 from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
 from modules.models.nodes.IR.IRMoveValue import IRMoveValue
 from modules.models.nodes.IR.IRProgramNode import IRFunctionDefinition
+from modules.models.nodes.IR.Operands.BinaryInstruction import BinaryInstruction
 from modules.models.nodes.IR.Operands.Immediate import Immediate
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
 
 class x86_64_AssemblyVisitor(VisitorModel):
+    REGISTER_MAP: dict[RegisterEnum, str] = {
+        RegisterEnum.EAX: "%eax",
+        RegisterEnum.EDX: "%edx",
+        RegisterEnum.R10: "%r10d",
+        RegisterEnum.R11: "%r11d"
+    }
+    
     lines: list[str]
     def __init__(self) -> None:
         self.lines: list[str] = []
         
     def _operand_to_asm(self, operand: BaseNode) -> str:
         if isinstance(operand, Register):
-            reg_map = {
-                RegisterEnum.EAX: "%eax",
-                RegisterEnum.R10: "%r10d"
-            }
-            return reg_map[operand.value]
+            return self.REGISTER_MAP[operand.value]
         elif isinstance(operand, Stack):
             return f"{operand.offset}(%rbp)"
         elif isinstance(operand, Immediate):
@@ -56,3 +60,23 @@ class x86_64_AssemblyVisitor(VisitorModel):
         instructions.append("\tret\n")
         return node
 
+    def __handle_binary_instruction(self, node: BinaryInstruction, instructions: list[str], asm_op: str) -> IRNode:
+        src = self._operand_to_asm(node.src)
+        dest = self._operand_to_asm(node.dest)
+        instructions.append(f"\t{asm_op} {dest}, {src}\n")
+        return node
+    
+    def visit_mul_instruction(self, node: BinaryInstruction, instructions: list[str]) -> IRNode:
+        return self.__handle_binary_instruction(node, instructions, "imull")
+    
+    def visit_sub_instruction(self, node: BinaryInstruction, instructions: list[str]) -> IRNode:
+        return self.__handle_binary_instruction(node, instructions, "subl")
+    
+    def visit_add_instruction(self, node: BinaryInstruction, instructions: list[str]) -> IRNode:
+        return self.__handle_binary_instruction(node, instructions, "addl")
+    
+    def visit_div_mod_instruction(self, node: BinaryInstruction, instructions: list[str])->IRNode:
+        src = self._operand_to_asm(node.src)
+        instructions.append(f"\tcdq\n")
+        instructions.append(f"\tidivl {src}\n")
+        return node

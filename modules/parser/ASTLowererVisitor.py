@@ -20,29 +20,55 @@ class ASTLowerer(VisitorModel):
     def __init__(self, allocator: StackAllocator):
         self.allocator = allocator
         
+    def __visit_divisor_or_modulo(self, node: BinaryNode, instructions: List[BaseNode], op: BinaryOperationEnum):
+        dividend = node.left.accept(self, instructions)
+        divisor = node.right.accept(self, instructions)
+        
+        src_name = f"tmp.{self.allocator.temp_counter}"
+        self.allocator.temp_counter += 1
+        src_pseudo = self.allocator.allocate_pseudo(src_name)
+        
+        dest_pseudo = f"reg.{RegisterEnum.EAX}"
+        dest_pseudo = self.allocator.allocate_pseudo(dest_pseudo)
+        
+        instructions.append(IRMoveValue(src=divisor, dest=src_pseudo))
+        instructions.append(IRMoveValue(src=dividend, dest=dest_pseudo))
+        
+        if(op == BinaryOperationEnum.MODULUS):
+            target_pseudo = self.allocator.allocate_pseudo(f"reg.{RegisterEnum.EDX}")
+            instructions.append(BinaryInstruction(Operation=op, left=src_pseudo, right=dest_pseudo))
+            instructions.append(IRMoveValue(src=target_pseudo, dest=dest_pseudo))
+            return dest_pseudo
+        else:
+            instructions.append(BinaryInstruction(Operation=op, left=src_pseudo, right=dest_pseudo))
+            return dest_pseudo
     
-
-    def visit_binary_expression(self, node: BinaryNode, instructions: List[BaseNode]):
+    def __visit_add_sub_or_mult(self, node: BinaryNode, instructions: List[BaseNode], op: BinaryOperationEnum):
         left_result = node.left.accept(self, instructions)
         right_result = node.right.accept(self, instructions)
+        src_name = f"tmp.{self.allocator.temp_counter}"
+        self.allocator.temp_counter += 1
+        dest_pseudo = self.allocator.allocate_pseudo(src_name)
+        scratch_name = f"reg.{RegisterEnum.R11.name}"
+        scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
+        instructions.append(IRMoveValue(src=left_result, dest=scratch_pseudo))
+        instructions.append(BinaryInstruction(Operation=op, left=scratch_pseudo, right=right_result, destination=scratch_pseudo))
+        instructions.append(IRMoveValue(src=scratch_pseudo, dest=dest_pseudo))
+        return dest_pseudo
+     
+    def visit_binary_expression(self, node: BinaryNode, instructions: List[BaseNode]):
         if isinstance(node, BinaryMinus):
-            operand = BinaryOperationEnum.MINUS
+            return self.__visit_add_sub_or_mult(node, instructions,BinaryOperationEnum.MINUS)
         elif isinstance(node, BinaryAdd):
-            operand = BinaryOperationEnum.ADD
+            return self.__visit_add_sub_or_mult(node, instructions,BinaryOperationEnum.ADD)
         elif isinstance(node, BinaryMultiply):  
-            operand = BinaryOperationEnum.MULTIPLY
+            return self.__visit_add_sub_or_mult(node, instructions,BinaryOperationEnum.MULTIPLY)
         elif isinstance(node, BinaryDivide):
-            operand = BinaryOperationEnum.DIVIDE
+            return self.__visit_divisor_or_modulo(node, instructions,BinaryOperationEnum.DIVIDE)
         elif isinstance(node, BinaryModulus):
-            operand = BinaryOperationEnum.MODULUS
+            return self.__visit_divisor_or_modulo(node, instructions,BinaryOperationEnum.MODULUS)
         else:
             raise NotImplementedError(f"Binary operation for {type(node)} not implemented in ASTLowerer")
-
-        temp_name = f"tmp.{self.allocator.temp_counter}"
-        self.allocator.temp_counter += 1
-        temp = self.allocator.allocate_pseudo(temp_name)
-        instructions.append(BinaryInstruction(Operation=operand, left=temp, right=right_result, destination=temp))
-        return temp
 
     def visit_negate(self, node: Negate, instructions: List[BaseNode]):
         operand_result = node.operand.accept(self, instructions)
@@ -70,7 +96,7 @@ class ASTLowerer(VisitorModel):
         # Handle return statement
         return_value: IRNode = node.value.accept(self, instructions)
         instructions.append(IRMoveValue(src=return_value, dest=Register(value=RegisterEnum.EAX)))
-        instructions.append(IRreturn(value=Register(value=RegisterEnum.EAX)))  # Placeholder for stack cleanup
+        instructions.append(IRreturn(value=Register(value=RegisterEnum.EAX)))
         return return_value
     
     def visit_function_definition(self, node: FunctionDefinitionNode, instructions: List[BaseNode])-> BaseNode:
