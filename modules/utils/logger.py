@@ -34,6 +34,10 @@ def setup_logger(
     global _logger
     
     if _logger is not None:
+        # Update level on existing logger
+        _logger.setLevel(level)
+        for handler in _logger.handlers:
+            handler.setLevel(level)
         return _logger
     
     # Create logger

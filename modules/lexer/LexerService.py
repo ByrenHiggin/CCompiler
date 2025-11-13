@@ -1,8 +1,8 @@
 from typing import List
 import re
-from modules.models.lexer.LexerToken import LexerToken
+from modules.lexer.models.LexerToken import LexerToken
 from modules.models.enums.keyword_patterns import KeyWordPatterns
-from modules.models.enums.token_type import TokenPatterns, TokenType
+from modules.models.enums.token_type import TokenType
 from modules.models.lexer.Token import Token
 from modules.utils.logger import get_logger, debug, info
 
@@ -14,30 +14,30 @@ class LexerService():
 		token_type = None
 		token_value = None
 		if comment_skip_mode:
-			for tokenPattern in [TokenPatterns.COMMENT_MULTI_END]:
-				regex = tokenPattern.value
+			for tokenPattern in [TokenType.COMMENT_MULTI_END]:
+				regex = tokenPattern.value.pattern
 				match = re.match(regex, input)
 				if match:
 					token_type = tokenPattern
 					token_value = match.group(0)
 					return LexerToken(type=token_type, value=token_value)
-			return LexerToken(type=TokenPatterns.COMMENT_LINE, value=input)
-		for tokenPattern in [pattern for pattern in TokenPatterns if pattern != TokenPatterns.ERROR]:
-			regex = tokenPattern.value
+			return LexerToken(type=TokenType.COMMENT_LINE, value=input)
+		for tokenPattern in [pattern for pattern in TokenType if pattern != TokenType.ERROR]:
+			regex = tokenPattern.value.pattern
 			match = re.match(regex, input, flags=re.DOTALL | re.MULTILINE)
 			if match:
 				token_type = tokenPattern
 				token_value = match.group(0)
 				return LexerToken(type=token_type, value=token_value)
-		return LexerToken(type=TokenPatterns.ERROR, value=input[0])
+		return LexerToken(type=TokenType.ERROR, value=input[0])
 	
 	def __test_for_keyword(self, identifier: str)->LexerToken:
 		for keyword in KeyWordPatterns:
 			regex = keyword.value
 			match = re.match(regex, identifier)
 			if match:
-				return LexerToken(type=TokenPatterns.KEYWORD, value=keyword.name)
-		return LexerToken(type=TokenPatterns.IDENTIFIER, value=identifier)
+				return LexerToken(type=TokenType.KEYWORD, value=keyword.name)
+		return LexerToken(type=TokenType.IDENTIFIER, value=identifier)
 
 	def __tokenize_string(self, data: str) -> List[LexerToken]:
 		input = data
@@ -49,20 +49,20 @@ class LexerService():
 				break
 			lexerToken: LexerToken = self.__test_token(input, self.comment_skip_mode)
 			match lexerToken.type: # type: ignore
-				case TokenPatterns.COMMENT_MULTI_START:
+				case TokenType.COMMENT_MULTI_START:
 					self.comment_skip_mode = True
 					input = input[len(lexerToken.value):]
 					continue
-				case TokenPatterns.COMMENT_MULTI_END:
+				case TokenType.COMMENT_MULTI_END:
 					input = input[len(lexerToken.value):]
 					self.comment_skip_mode = False
 					continue
-				case TokenPatterns.COMMENT_LINE:
+				case TokenType.COMMENT_LINE:
 					input = input[len(lexerToken.value):]
 					continue
-				case TokenPatterns.IDENTIFIER:
+				case TokenType.IDENTIFIER:
 					lexerToken = self.__test_for_keyword(lexerToken.value)
-				case TokenPatterns.ERROR:
+				case TokenType.ERROR:
 					raise ValueError(f"Unexpected character: {input[0]}")
 			tokens.append(lexerToken)
 			input = input[len(lexerToken.value):]

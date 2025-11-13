@@ -1,18 +1,18 @@
 
 from typing import List
-from modules.models.nodes.AST.Operands.BinaryOperators import BinaryAdd, BinaryDivide, BinaryMinus, BinaryModulus, BinaryMultiply
+from modules.models.nodes.AST.Operands.BinaryOperators import BinaryAdd, BinaryDivide, BinaryMinus, BinaryModulus, BinaryMultiply, BitwiseAnd, BitwiseLeftShift, BitwiseOr, BitwiseRightShift, BitwiseXor
 from modules.models.nodes.AST.Operands.ExpressionNode import BinaryNode
 from modules.models.nodes.AST.Statements.ReturnStatementNode import StatementNode
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
 from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
 from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
-from modules.models.nodes.IR.Operands.BinaryInstruction import AddInstruction, BinaryInstruction, BinaryOperationEnum, DivInstruction, ModInstruction, MulInstruction, SubInstruction
+from modules.models.nodes.IR.Operands.BinaryInstruction import AddInstruction, BinaryOperationEnum, BitwiseAndInstruction, BitwiseLeftShiftInstruction, BitwiseOrInstruction, BitwiseRightShiftInstruction, BitwiseXorInstruction, DivInstruction, ModInstruction, MulInstruction, SubInstruction
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
 from modules.models.nodes.IR.IRMoveValue import IRMoveValue
 from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
-from modules.parser.visitors.StackAllocator import StackAllocator
+from modules.IntermediateGenerator.visitors.StackAllocator import StackAllocator
 
 
 class ASTLowerer(VisitorModel):
@@ -63,6 +63,31 @@ class ASTLowerer(VisitorModel):
                 raise NotImplementedError(f"Operation {op} not implemented in __visit_add_sub_or_mult")                           
         instructions.append(IRMoveValue(src=scratch_pseudo, dest=dest_pseudo))
         return dest_pseudo
+    
+    def __visit_bitwise_and_or_xor(self, node: BinaryNode, instructions: List[BaseNode], op: BinaryOperationEnum):
+        left_result = node.left.accept(self, instructions)
+        right_result = node.right.accept(self, instructions)
+        src_name = f"tmp.{self.allocator.temp_counter}"
+        self.allocator.temp_counter += 1
+        dest_pseudo = self.allocator.allocate_pseudo(src_name)
+        scratch_name = f"reg.{RegisterEnum.R11.name}"
+        scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
+        instructions.append(IRMoveValue(src=left_result, dest=scratch_pseudo))
+        match op:
+            case BinaryOperationEnum.BITWISE_AND:
+                instructions.append(BitwiseAndInstruction(src=scratch_pseudo, dest=right_result))
+            case BinaryOperationEnum.BITWISE_OR:
+                instructions.append(BitwiseOrInstruction(src=scratch_pseudo, dest=right_result))
+            case BinaryOperationEnum.BITWISE_XOR:
+                instructions.append(BitwiseXorInstruction(src=scratch_pseudo, dest=right_result))
+            case BinaryOperationEnum.SHIFT_LEFT:
+                instructions.append(BitwiseLeftShiftInstruction(src=scratch_pseudo, dest=right_result))
+            case BinaryOperationEnum.SHIFT_RIGHT:
+                instructions.append(BitwiseRightShiftInstruction(src=scratch_pseudo, dest=right_result))
+            case _:
+                raise NotImplementedError(f"Operation {op} not implemented in __visit_add_sub_or_mult")                           
+        instructions.append(IRMoveValue(src=scratch_pseudo, dest=dest_pseudo))
+        return dest_pseudo 
      
     def visit_binary_expression(self, node: BinaryNode, instructions: List[BaseNode]):
         if isinstance(node, BinaryMinus):
@@ -75,6 +100,16 @@ class ASTLowerer(VisitorModel):
             return self.__visit_divisor_or_modulo(node, instructions,BinaryOperationEnum.DIVIDE)
         elif isinstance(node, BinaryModulus):
             return self.__visit_divisor_or_modulo(node, instructions,BinaryOperationEnum.MODULUS)
+        elif isinstance(node, BitwiseAnd):
+            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.BITWISE_AND)
+        elif isinstance(node, BitwiseOr):
+            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.BITWISE_OR)
+        elif isinstance(node, BitwiseXor):
+            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.BITWISE_XOR)
+        elif isinstance(node, BitwiseLeftShift):
+            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.SHIFT_LEFT)
+        elif isinstance(node, BitwiseRightShift):
+            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.SHIFT_RIGHT)
         else:
             raise NotImplementedError(f"Binary operation for {type(node)} not implemented in ASTLowerer")
 

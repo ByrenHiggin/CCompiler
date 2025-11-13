@@ -1,5 +1,5 @@
 from modules.models.enums.token_type import TokenType
-from modules.models.nodes.AST.Operands.BinaryOperators import BinaryAdd, BinaryDivide, BinaryMinus, BinaryModulus, BinaryMultiply
+from modules.models.nodes.AST.Operands.BinaryOperators import * 
 from modules.models.nodes.AST.Operands.ConstantInteger import ConstantInteger
 from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
 from modules.models.nodes.BaseNode import BaseNode
@@ -13,8 +13,55 @@ class ExpressionParser:
         self.token_iterator = token_iterator
 
     def parse_expression(self) -> BaseNode:
-        return self.__parse_additive()    
+        return self.__parse_logical_or()
     
+    def __parse_logical_or(self) -> BaseNode:
+        left = self.__parse_logical_and()
+        while self.token_iterator.match(TokenType.LOGICAL_OR):
+            right = self.__parse_logical_and()
+            left = BitwiseOr(left=left, right=right)
+        return left  
+    
+    def __parse_logical_and(self) -> BaseNode:
+        left = self.__parse_bitwise_or()
+        while self.token_iterator.match(TokenType.LOGICAL_AND):
+            right = self.__parse_bitwise_or()
+            left = BitwiseOr(left=left, right=right)
+        return left 
+    
+    def __parse_bitwise_or(self) -> BaseNode:
+        left = self.__parse_bitwise_xor()
+        while self.token_iterator.match(TokenType.BITWISE_OR):
+            right = self.__parse_bitwise_xor()
+            left = BitwiseOr(left=left, right=right)
+        return left
+     
+    def __parse_bitwise_xor(self) -> BaseNode:
+        left = self.__parse_bitwise_and()
+        while self.token_iterator.match(TokenType.BITWISE_XOR):
+            right = self.__parse_bitwise_and()
+            left = BitwiseXor(left=left, right=right)
+        return left
+    
+    def __parse_bitwise_and(self) -> BaseNode:
+        left = self.__parse_bitwise_shift()
+        while self.token_iterator.match(TokenType.BITWISE_AND):
+            right = self.__parse_bitwise_shift()
+            left = BitwiseAnd(left=left, right=right)
+        return left
+    
+    def __parse_bitwise_shift(self) -> BaseNode:
+        left = self.__parse_additive()
+        while self.token_iterator.match(TokenType.SHIFT_LEFT, TokenType.SHIFT_RIGHT):
+            operator = self.token_iterator.lookbehind()
+            right = self.__parse_additive()
+            if operator.type == TokenType.SHIFT_LEFT:
+                left = BitwiseLeftShift(left=left, right=right)
+            elif operator.type == TokenType.SHIFT_RIGHT:
+                left = BitwiseRightShift(left=left, right=right)
+                
+        return left
+        
     def __parse_additive(self) -> BaseNode:
         left = self.__parse_multiplicative()
 
@@ -25,9 +72,8 @@ class ExpressionParser:
                 left = BinaryAdd(left=left, right=right)
             elif operator.type == TokenType.MINUS:
                 left = BinaryMinus(left=left, right=right)
-                
         return left
-
+    
     def __parse_multiplicative(self) -> BaseNode:
         left = self.__parse_unary()
 
@@ -55,8 +101,6 @@ class ExpressionParser:
     def __parse_primary(self) -> BaseNode:
         if self.token_iterator.match(TokenType.CONSTANT):
             return self.__handle_constant()
-        #elif self.__token_in_type_set(token, [TokenType.IDENTIFIER]):
-            #return VariableReference(name=token.value)
         if self.token_iterator.match(TokenType.LPAREN):
             st = self.__handle_parentheses()
             self.token_iterator.consume(TokenType.RPAREN, "Expected ')' after expression")

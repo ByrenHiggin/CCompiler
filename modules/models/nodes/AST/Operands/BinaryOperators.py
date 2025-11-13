@@ -33,3 +33,33 @@ class BinaryModulus(BinaryNode):
 	right: BaseNode
 	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
 		return visitor.visit_binary_expression(self, instructions)
+
+class BitwiseAnd(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_binary_expression(self, instructions)
+
+class BitwiseOr(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_binary_expression(self, instructions)
+
+class BitwiseXor(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_binary_expression(self, instructions)
+
+class BitwiseLeftShift(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_binary_expression(self, instructions)
+
+class BitwiseRightShift(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_binary_expression(self, instructions)

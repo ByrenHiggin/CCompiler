@@ -2,13 +2,13 @@
 from typing import List
 from modules.models.nodes.BaseNode import IRNode, VisitorModel
 from modules.models.nodes.IR.IRMoveValue import IRMoveValue
-from modules.models.nodes.IR.Operands.BinaryInstruction import AddInstruction, BinaryInstruction, BinaryOperationEnum, DivInstruction, ModInstruction, MulInstruction, SubInstruction
+from modules.models.nodes.IR.Operands.BinaryInstruction import AddInstruction, BinaryInstruction, DivInstruction, ModInstruction, MulInstruction, SubInstruction
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction
 from modules.models.nodes.IR.Operands.Pseudo import Pseudo
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
-from modules.parser.visitors.StackAllocator import StackAllocator
+from modules.IntermediateGenerator.visitors.StackAllocator import StackAllocator
 
 
 class ASTLegalizer(VisitorModel):
@@ -54,5 +54,25 @@ class ASTLegalizer(VisitorModel):
         self.visit_binary_instruction(node, instructions)
         return node
     def visit_div_mod_instruction(self, node: DivInstruction | ModInstruction, instructions: List[IRNode]):
+        self.visit_binary_instruction(node, instructions)
+        return node
+    
+    def visit_bitwise_and_instruction(self, node: BinaryInstruction, instructions: list[IRNode]) -> IRNode:
+        self.visit_binary_instruction(node, instructions)
+        return node
+    
+    def visit_bitwise_or_instruction(self, node: BinaryInstruction, instructions: list[IRNode]) -> IRNode:
+        self.visit_binary_instruction(node, instructions)
+        return node
+    
+    def visit_bitwise_xor_instruction(self, node: BinaryInstruction, instructions: list[IRNode]) -> IRNode:
+        self.visit_binary_instruction(node, instructions)
+        return node
+    
+    def visit_bitwise_left_shift_instruction(self, node: BinaryInstruction, instructions: list[IRNode]) -> IRNode:
+        self.visit_binary_instruction(node, instructions)
+        return node
+    
+    def visit_bitwise_right_shift_instruction(self, node: BinaryInstruction, instructions: list[IRNode]) -> IRNode:
         self.visit_binary_instruction(node, instructions)
         return node

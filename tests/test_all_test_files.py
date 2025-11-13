@@ -8,7 +8,7 @@ from pathlib import Path
 import traceback
 
 # Directory containing the files you want to run tests on
-TEST_DIR = Path(os.path.dirname(os.path.dirname(__file__))) / "writing-a-c-compiler-tests" / "tests" / "chapter_1"
+TEST_DIR = Path(os.path.dirname(os.path.dirname(__file__))) / "writing-a-c-compiler-tests" / "tests" / "chapter_3"
 # Pattern to match C files
 PATTERN = "*.c"
 

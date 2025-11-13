@@ -80,3 +80,18 @@ class x86_64_AssemblyVisitor(VisitorModel):
         instructions.append(f"\tcdq\n")
         instructions.append(f"\tidivl {src}\n")
         return node
+    
+    def visit_bitwise_and_instruction(self, node: BinaryInstruction, instructions: list[str]) -> IRNode:
+        return self.__handle_binary_instruction(node, instructions, "andl")
+    
+    def visit_bitwise_or_instruction(self, node: BinaryInstruction, instructions: list[str]) -> IRNode:
+        return self.__handle_binary_instruction(node, instructions, "orl")
+    
+    def visit_bitwise_xor_instruction(self, node: BinaryInstruction, instructions: list[str]) -> IRNode:
+        return self.__handle_binary_instruction(node, instructions, "xorl")
+    
+    def visit_bitwise_left_shift_instruction(self, node: BinaryInstruction, instructions: list[str]) -> IRNode:
+        return self.__handle_binary_instruction(node, instructions, "shll")
+    
+    def visit_bitwise_right_shift_instruction(self, node: BinaryInstruction, instructions: list[str]) -> IRNode:
+        return self.__handle_binary_instruction(node, instructions, "shrl")

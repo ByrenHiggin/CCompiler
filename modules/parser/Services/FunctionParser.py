@@ -1,10 +1,6 @@
 from typing import Callable, List
-from modules.models.enums.keyword_patterns import KeyWordPatterns
 from modules.models.enums.token_type import TokenType
-from modules.models.lexer.Token import Token
-from modules.models.nodes.AST.Expressions import ExpressionStatementNode
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
-from modules.models.nodes.AST.Statements.ReturnStatementNode import ReturnStatementNode
 from modules.models.nodes.BaseNode import BaseNode
 from modules.parser.Services.ExpressionParser import ExpressionParser
 from modules.parser.Services.StatementParser import StatementParser

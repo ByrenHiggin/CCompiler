@@ -9,7 +9,3 @@ class UnaryNode(BaseNode):
 class BinaryNode(BaseNode):
 	left: BaseNode
 	right: BaseNode
- 
-class BitwiseNode(BaseNode):
-	left: BaseNode
-	right: BaseNode

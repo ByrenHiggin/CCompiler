@@ -1,69 +1,46 @@
+from dataclasses import dataclass
 from enum import Enum
 
-class TokenPatterns(Enum):
-    COMMENT_LINE = r'\/\/.*'
-    COMMENT_MULTI_START = r'\/\*.*?'
-    COMMENT_MULTI_END = r'.*?(\*\/){1}?'
-    IDENTIFIER = r'[a-zA-Z_]\w*\b'
-    CONSTANT = r'[0-9]+\b'
-    INCREMENT = r'\+\+'
-    DECREMENT = r'--'
-    AND = r'&&'
-    OR = r'\|\|'
-    EQ = r'=='
-    NEQ = r'!='
-    LTE = r'<='
-    GTE = r'>='
-    ASSIGN = r'='
-    PLUS = r'\+'
-    MINUS = r'-'
-    BITWISE_NOT = r'~'
-    NOT = r'!'
-    MULTIPLY = r'\*'
-    DIVIDE = r'\/'
-    MODULUS = r'\%'
-    LT = r'<'
-    GT = r'>'
-    SEMICOLON = r';'
-    LPAREN = r'\('
-    RPAREN = r'\)'
-    LBRACE = r'\{'
-    RBRACE = r'\}'
-    COMMA = r','
-    KEYWORD = r'KEYWORD'
-    ERROR = r'ERROR'
-    EOF = r'EOF'
+@dataclass(frozen=True)
+class TokenDefinition:
+    type: str
+    pattern: str
     
 class TokenType(Enum):
-    COMMENT_LINE = 'COMMENT'
-    COMMENT_MULTI_START = 'COMMENT_START'
-    COMMENT_MULTI_END = 'COMMENT_END'
-    IDENTIFIER = 'IDENTIFIER'
-    CONSTANT = 'CONSTANT'
-    INCREMENT = 'INCREMENT'
-    DECREMENT = 'DECREMENT'
-    AND = 'AND'
-    OR = 'OR'
-    EQ = 'EQ'
-    NEQ = 'NEQ'
-    LTE = 'LTE'
-    GTE = 'GTE'
-    ASSIGN = 'ASSIGN'
-    PLUS = 'PLUS'
-    MINUS = 'MINUS'
-    BITWISE_NOT = 'BITWISE_NOT'
-    NOT = 'NOT'
-    MULTIPLY = 'MULTIPLY'
-    DIVIDE = 'DIVIDE'
-    MODULUS = 'MODULUS'
-    LT = 'LT'
-    GT = 'GT'
-    SEMICOLON = 'SEMICOLON'
-    LPAREN = 'LPAREN'
-    RPAREN = 'RPAREN'
-    LBRACE = 'LBRACE'
-    RBRACE = 'RBRACE'
-    COMMA = 'COMMA'
-    KEYWORD = 'KEYWORD'
-    ERROR = 'ERROR'
-    EOF = 'EOF'
+    COMMENT_LINE = TokenDefinition(type='COMMENT_LINE', pattern=r'\/\/.*')
+    COMMENT_MULTI_START = TokenDefinition(type='COMMENT_MULTI_START', pattern=r'\/\*.*?')
+    COMMENT_MULTI_END = TokenDefinition(type='COMMENT_MULTI_END', pattern=r'.*?(\*\/){1}?')
+    IDENTIFIER = TokenDefinition(type='IDENTIFIER', pattern=r'[a-zA-Z_]\w*\b')
+    CONSTANT = TokenDefinition(type='CONSTANT', pattern=r'[0-9]+\b')
+    INCREMENT = TokenDefinition(type='INCREMENT', pattern=r'\+\+')
+    DECREMENT = TokenDefinition(type='DECREMENT', pattern=r'--')
+    LOGICAL_AND = TokenDefinition(type='LOGICAL_AND', pattern=r'&&')
+    LOGICAL_OR = TokenDefinition(type='LOGICAL_OR', pattern=r'\|\|')
+    EQ = TokenDefinition(type='EQ', pattern=r'==')
+    NEQ = TokenDefinition(type='NEQ', pattern=r'!=')
+    LTE = TokenDefinition(type='LTE', pattern=r'<=')
+    GTE = TokenDefinition(type='GTE', pattern=r'>=')
+    ASSIGN = TokenDefinition(type='ASSIGN', pattern=r'=')
+    PLUS = TokenDefinition(type='PLUS', pattern=r'\+')
+    MINUS = TokenDefinition(type='MINUS', pattern=r'-')
+    BITWISE_NOT = TokenDefinition(type='BITWISE_NOT', pattern=r'~')
+    NOT = TokenDefinition(type='NOT', pattern=r'!')
+    MULTIPLY = TokenDefinition(type='MULTIPLY', pattern=r'\*')
+    DIVIDE = TokenDefinition(type='DIVIDE', pattern=r'\/')
+    MODULUS = TokenDefinition(type='MODULUS', pattern=r'%')
+    BITWISE_AND = TokenDefinition(type='BITWISE_AND', pattern=r'&')
+    BITWISE_OR = TokenDefinition(type='BITWISE_OR', pattern=r'\|')
+    BITWISE_XOR = TokenDefinition(type='BITWISE_XOR', pattern=r'\^')
+    SHIFT_LEFT = TokenDefinition(type='SHIFT_LEFT', pattern=r'<<')
+    SHIFT_RIGHT = TokenDefinition(type='SHIFT_RIGHT', pattern=r'>>')
+    LT = TokenDefinition(type='LT', pattern=r'<')
+    GT = TokenDefinition(type='GT', pattern=r'>')
+    SEMICOLON = TokenDefinition(type='SEMICOLON', pattern=r';')
+    LPAREN = TokenDefinition(type='LPAREN', pattern=r'\(')
+    RPAREN = TokenDefinition(type='RPAREN', pattern=r'\)')
+    LBRACE = TokenDefinition(type='LBRACE', pattern=r'\{')
+    RBRACE = TokenDefinition(type='RBRACE', pattern=r'\}')
+    COMMA = TokenDefinition(type='COMMA', pattern=r',')
+    KEYWORD = TokenDefinition(type='KEYWORD', pattern=r'KEYWORD')
+    ERROR = TokenDefinition(type='ERROR', pattern=r'ERROR')
+    EOF = TokenDefinition(type='EOF', pattern=r'EOF')
