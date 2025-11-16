@@ -20,37 +20,36 @@ class FunctionParser:
         self.statement_parser = statement_parser
         self.__init_declaration_handlers()
     
-    def __parse_preprocessor_directive(self):
-        if self.token_iterator.check(TokenType.IFDEF):
-            right = self.__parse_ifdef()
-        elif self.token_iterator.check(TokenType.PRAGMA):
-            right = self.__parse_pragma()
-        elif self.token_iterator.check(TokenType.IFNDEF):
-            right = self.__parse_ifndef()
-        elif self.token_iterator.check(TokenType.ELSE):
-            right = self.__parse_else()
+    def parse_preprocessor_directive(self):
+        while self.token_iterator.check(TokenType.IFDEF, TokenType.IFNDEF, TokenType.ELSE, TokenType.PRAGMA):
+            if self.token_iterator.match(TokenType.IFDEF):
+                right = self.__parse_ifdef()
+            elif self.token_iterator.match(TokenType.PRAGMA):
+                right = self.__parse_pragma()
+            elif self.token_iterator.match(TokenType.IFNDEF):
+                right = self.__parse_ifndef()
+            elif self.token_iterator.match(TokenType.ELSE):
+                right = self.__parse_else()
+            else:
+                return None
 
     def __parse_else(self):
-        else_token = self.token_iterator.consume(TokenType.ELSE, "Expected #else")
-        self.__parse_preprocessor_directive()
+        self.parse_preprocessor_directive()
     
     def __parse_ifndef(self):
-        ifdef = self.token_iterator.consume(TokenType.IFNDEF, "Expected #ifndef")
         id = self.token_iterator.consume(TokenType.IDENTIFIER, "Expected identifier after #ifdef")
-        self.__parse_preprocessor_directive()
+        self.parse_preprocessor_directive()
         endif = self.token_iterator.consume(TokenType.ENDIF, "Expected #endif")
      
     def __parse_ifdef(self):
-        ifdef = self.token_iterator.consume(TokenType.IFDEF, "Expected #ifdef")
         id = self.token_iterator.consume(TokenType.IDENTIFIER, "Expected identifier after #ifdef")
-        self.__parse_preprocessor_directive()
+        self.parse_preprocessor_directive()
         endif = self.token_iterator.consume(TokenType.ENDIF, "Expected #endif")
         
     def __parse_pragma(self):
-        pragma = self.token_iterator.consume(TokenType.PRAGMA, "Expected #pragma") 
         while not self.token_iterator.check(TokenType.ENDIF, TokenType.IFDEF, TokenType.IFNDEF, TokenType.ELSE, TokenType.PRAGMA):
             self.token_iterator.advance()
-        self.__parse_preprocessor_directive()
+        self.parse_preprocessor_directive()
             
     
     def __parse_function_parameters(self) -> List[BaseNode]:
@@ -143,7 +142,7 @@ class FunctionParser:
     def __init_declaration_handlers(self):
         self.declaration_handlers = {
             "function": self.__parse_function_declaration,
-            "ifdef": self.__parse_ifdef,
-            "ifndef": self.__parse_ifndef,
+            "ifdef": self.parse_preprocessor_directive,
+            "ifndef": self.parse_preprocessor_directive,
         }
         
