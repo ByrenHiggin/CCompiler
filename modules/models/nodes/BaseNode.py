@@ -20,3 +20,9 @@ class IR_Expression(IRNode):
 
 class Operand(IR_Expression):
     pass
+
+class BinaryInstruction(IR_Expression):
+    src: IR_Expression
+    dest: IR_Expression
+    def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+        pass

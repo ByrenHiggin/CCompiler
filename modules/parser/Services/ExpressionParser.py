@@ -1,6 +1,8 @@
 from modules.models.enums.token_type import TokenType
 from modules.models.nodes.AST.Operands.BinaryOperators import * 
+from modules.models.nodes.AST.Operands.BitwiseOperators import *
 from modules.models.nodes.AST.Operands.ConstantInteger import ConstantInteger
+from modules.models.nodes.AST.Operands.RelationalOperators import *
 from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
 from modules.models.nodes.BaseNode import BaseNode
 from modules.parser.Services.TokenIteratorService import TokenIteratorService

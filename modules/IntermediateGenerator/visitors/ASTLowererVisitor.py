@@ -1,12 +1,20 @@
 
 from typing import List
 from modules.models.nodes.AST.Operands.BinaryOperators import *
+from modules.models.nodes.AST.Operands.BitwiseOperators import *
+from modules.models.nodes.AST.Operands.RelationalOperators import * 
+from modules.models.nodes.AST.Operands.UnaryOperators import *
+
 from modules.models.nodes.AST.Operands.ExpressionNode import BinaryNode
 from modules.models.nodes.AST.Statements.ReturnStatementNode import StatementNode
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
-from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, LogicalNot, Negate
+
 from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
+
+from modules.models.nodes.IR.Operands.UnaryInstruction import *
 from modules.models.nodes.IR.Operands.BinaryInstruction import *
+from modules.models.nodes.IR.Operands.BitwiseInstruction import *
+
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
@@ -64,7 +72,7 @@ class ASTLowerer(VisitorModel):
         instructions.append(IRCopy(src=scratch_pseudo, dest=dest_pseudo))
         return dest_pseudo
     
-    def __visit_bitwise_and_or_xor(self, node: BinaryNode, instructions: List[BaseNode], op: BinaryOperationEnum):
+    def __visit_bitwise_and_or_xor(self, node: BinaryNode, instructions: List[BaseNode], op: BitwiseOperationEnum):
         left_result = node.left.accept(self, instructions)
         right_result = node.right.accept(self, instructions)
         src_name = f"tmp.{self.allocator.temp_counter}"
@@ -74,15 +82,15 @@ class ASTLowerer(VisitorModel):
         scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
         instructions.append(IRCopy(src=left_result, dest=scratch_pseudo))
         match op:
-            case BinaryOperationEnum.BITWISE_AND:
+            case BitwiseOperationEnum.BITWISE_AND:
                 instructions.append(BitwiseAndInstruction(src=scratch_pseudo, dest=right_result))
-            case BinaryOperationEnum.BITWISE_OR:
+            case BitwiseOperationEnum.BITWISE_OR:
                 instructions.append(BitwiseOrInstruction(src=scratch_pseudo, dest=right_result))
-            case BinaryOperationEnum.BITWISE_XOR:
+            case BitwiseOperationEnum.BITWISE_XOR:
                 instructions.append(BitwiseXorInstruction(src=scratch_pseudo, dest=right_result))
-            case BinaryOperationEnum.SHIFT_LEFT:
+            case BitwiseOperationEnum.SHIFT_LEFT:
                 instructions.append(BitwiseLeftShiftInstruction(src=scratch_pseudo, dest=right_result))
-            case BinaryOperationEnum.SHIFT_RIGHT:
+            case BitwiseOperationEnum.SHIFT_RIGHT:
                 instructions.append(BitwiseRightShiftInstruction(src=scratch_pseudo, dest=right_result))
             case _:
                 raise NotImplementedError(f"Operation {op} not implemented in __visit_add_sub_or_mult")                           
@@ -100,16 +108,20 @@ class ASTLowerer(VisitorModel):
             return self.__visit_divisor_or_modulo(node, instructions,BinaryOperationEnum.DIVIDE)
         elif isinstance(node, BinaryModulus):
             return self.__visit_divisor_or_modulo(node, instructions,BinaryOperationEnum.MODULUS)
-        elif isinstance(node, BitwiseAnd):
-            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.BITWISE_AND)
+        else:
+            raise NotImplementedError(f"Binary operation for {type(node)} not implemented in ASTLowerer")
+    
+    def visit_bitwise_expression(self, node: BinaryNode, instructions: List[BaseNode]):
+        if isinstance(node, BitwiseAnd):
+            return self.__visit_bitwise_and_or_xor(node, instructions,BitwiseOperationEnum.BITWISE_AND)
         elif isinstance(node, BitwiseOr):
-            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.BITWISE_OR)
+            return self.__visit_bitwise_and_or_xor(node, instructions,BitwiseOperationEnum.BITWISE_OR)
         elif isinstance(node, BitwiseXor):
-            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.BITWISE_XOR)
+            return self.__visit_bitwise_and_or_xor(node, instructions,BitwiseOperationEnum.BITWISE_XOR)
         elif isinstance(node, BitwiseLeftShift):
-            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.SHIFT_LEFT)
+            return self.__visit_bitwise_and_or_xor(node, instructions,BitwiseOperationEnum.SHIFT_LEFT)
         elif isinstance(node, BitwiseRightShift):
-            return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.SHIFT_RIGHT)
+            return self.__visit_bitwise_and_or_xor(node, instructions,BitwiseOperationEnum.SHIFT_RIGHT)
         else:
             raise NotImplementedError(f"Binary operation for {type(node)} not implemented in ASTLowerer")
         
