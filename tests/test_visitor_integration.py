@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from modules.IntermediateGenerator.TackyGenerator import TackyGenerator
+from modules.IntermediateGenerator.IRGenerator import TackyGenerator
 from modules.models.nodes.AST.ProgramNode import ProgramNode
 
 
@@ -84,7 +84,7 @@ class TestVisitorIntegration(unittest.TestCase):
         assembly_visitor = x86_64_AssemblyVisitor()
         
         # Check that expected methods exist
-        self.assertTrue(hasattr(legalizer, 'visit_ir_move_value'))
+        self.assertTrue(hasattr(legalizer, 'visit_ir_copy'))
         self.assertTrue(hasattr(legalizer, 'visit_unary_instruction'))
         self.assertTrue(hasattr(legalizer, 'visit_ir_return'))
         
@@ -93,7 +93,7 @@ class TestVisitorIntegration(unittest.TestCase):
         self.assertTrue(hasattr(lowerer, 'visit_constant_integer'))
         self.assertTrue(hasattr(lowerer, 'visit_return_statement'))
         
-        self.assertTrue(hasattr(assembly_visitor, 'visit_ir_move_value'))
+        self.assertTrue(hasattr(assembly_visitor, 'visit_ir_copy'))
         self.assertTrue(hasattr(assembly_visitor, 'visit_unary_instruction'))
         self.assertTrue(hasattr(assembly_visitor, 'visit_ir_return'))
         self.assertTrue(hasattr(assembly_visitor, '_operand_to_asm'))

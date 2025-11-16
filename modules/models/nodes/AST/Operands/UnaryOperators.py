@@ -8,6 +8,11 @@ class BitwiseNot(UnaryNode):
 	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
 		return visitor.visit_bitwise_not(self, instructions)
 
+class LogicalNot(UnaryNode):
+	operand: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_logical_not(self, instructions)
+
 class Negate(UnaryNode):
 	operand: BaseNode
 	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:

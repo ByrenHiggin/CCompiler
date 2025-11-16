@@ -1,3 +1,4 @@
+from turtle import left
 from typing import Callable, List
 from modules.models.enums.token_type import TokenType
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
@@ -18,6 +19,39 @@ class FunctionParser:
         self.expression_parser = expression_parser
         self.statement_parser = statement_parser
         self.__init_declaration_handlers()
+    
+    def __parse_preprocessor_directive(self):
+        if self.token_iterator.check(TokenType.IFDEF):
+            right = self.__parse_ifdef()
+        elif self.token_iterator.check(TokenType.PRAGMA):
+            right = self.__parse_pragma()
+        elif self.token_iterator.check(TokenType.IFNDEF):
+            right = self.__parse_ifndef()
+        elif self.token_iterator.check(TokenType.ELSE):
+            right = self.__parse_else()
+
+    def __parse_else(self):
+        else_token = self.token_iterator.consume(TokenType.ELSE, "Expected #else")
+        self.__parse_preprocessor_directive()
+    
+    def __parse_ifndef(self):
+        ifdef = self.token_iterator.consume(TokenType.IFNDEF, "Expected #ifndef")
+        id = self.token_iterator.consume(TokenType.IDENTIFIER, "Expected identifier after #ifdef")
+        self.__parse_preprocessor_directive()
+        endif = self.token_iterator.consume(TokenType.ENDIF, "Expected #endif")
+     
+    def __parse_ifdef(self):
+        ifdef = self.token_iterator.consume(TokenType.IFDEF, "Expected #ifdef")
+        id = self.token_iterator.consume(TokenType.IDENTIFIER, "Expected identifier after #ifdef")
+        self.__parse_preprocessor_directive()
+        endif = self.token_iterator.consume(TokenType.ENDIF, "Expected #endif")
+        
+    def __parse_pragma(self):
+        pragma = self.token_iterator.consume(TokenType.PRAGMA, "Expected #pragma") 
+        while not self.token_iterator.check(TokenType.ENDIF, TokenType.IFDEF, TokenType.IFNDEF, TokenType.ELSE, TokenType.PRAGMA):
+            self.token_iterator.advance()
+        self.__parse_preprocessor_directive()
+            
     
     def __parse_function_parameters(self) -> List[BaseNode]:
         self.token_iterator.consume(TokenType.LPAREN, "Expected '(' at start of function parameters")
@@ -81,6 +115,15 @@ class FunctionParser:
                     self.token_iterator.token_in_type_set(token_after_next, [TokenType.ASSIGN, TokenType.SEMICOLON])):
                     return "variable"
         
+        if current_token.type == TokenType.IFDEF:
+            return "ifdef"
+        if current_token.type == TokenType.IFNDEF:
+            return "ifndef"
+        if current_token.type == TokenType.ELSE:
+            return "else"
+        if current_token.type == TokenType.PRAGMA:
+            return "pragma"
+        
         # If we can't determine the type, return None
         return None
     
@@ -99,6 +142,8 @@ class FunctionParser:
         
     def __init_declaration_handlers(self):
         self.declaration_handlers = {
-            "function": self.__parse_function_declaration
+            "function": self.__parse_function_declaration,
+            "ifdef": self.__parse_ifdef,
+            "ifndef": self.__parse_ifndef,
         }
         

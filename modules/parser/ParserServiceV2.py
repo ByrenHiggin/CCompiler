@@ -33,6 +33,8 @@ class ParserServiceV2():
         self.functions = []
         while self.token_iterator.position < len(self.token_iterator.lex_array):
             self._logger.debug(f"Parsing function at position {self.token_iterator.position}, line: {self.token_iterator.current().lineNumber}")
-            self.functions.append(self.functionService.parse_declaration())
+            result = self.functionService.parse_declaration()
+            if result:
+                self.functions.append(result)
         return ProgramNode(functions=self.functions)
     

@@ -4,7 +4,7 @@ import logging
 from modules.codeGenerator.AssemblyGenerator import AssemblyGenerator
 from modules.lexer.LexerService import LexerService
 from modules.parser.ParserServiceV2 import ParserServiceV2
-from modules.IntermediateGenerator.IRGenerator import IRGenerator, TackyGenerator
+from modules.IntermediateGenerator.IRGenerator import IRGenerator
 from modules.utils import logger
 
 argparser = argparse.ArgumentParser(description="A C Compiler implementation.")

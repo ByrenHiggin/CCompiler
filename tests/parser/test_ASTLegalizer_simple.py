@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from modules.parser.ASTLegalizerVisitor import ASTLegalizer
 from modules.parser.visitors.StackAllocator import StackAllocator
-from modules.models.nodes.IR.IRMoveValue import IRMoveValue
+from modules.models.nodes.IR.Statements.IRCopy import IRCopy
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
@@ -29,22 +29,22 @@ class TestASTLegalizerSimple(unittest.TestCase):
         instructions = []
         src = Register(value=RegisterEnum.EAX)
         dest = Register(value=RegisterEnum.R10)
-        move = IRMoveValue(src=src, dest=dest)
+        move = IRCopy(src=src, dest=dest)
         
-        self.legalizer.visit_ir_move_value(move, instructions)
+        self.legalizer.visit_ir_copy(move, instructions)
         
         # Should have exactly one instruction (the original move)
         self.assertEqual(len(instructions), 1)
-        self.assertIsInstance(instructions[0], IRMoveValue)
+        self.assertIsInstance(instructions[0], IRCopy)
 
     def test_legal_immediate_to_register_move(self):
         """Test that immediate-to-register moves are legal."""
         instructions = []
         src = Immediate(value="42")
         dest = Register(value=RegisterEnum.EAX)
-        move = IRMoveValue(src=src, dest=dest)
+        move = IRCopy(src=src, dest=dest)
         
-        self.legalizer.visit_ir_move_value(move, instructions)
+        self.legalizer.visit_ir_copy(move, instructions)
         
         # Should pass through as single instruction
         self.assertEqual(len(instructions), 1)
@@ -54,21 +54,21 @@ class TestASTLegalizerSimple(unittest.TestCase):
         instructions = []
         src = Stack(offset=-4)
         dest = Stack(offset=-8)
-        move = IRMoveValue(src=src, dest=dest)
+        move = IRCopy(src=src, dest=dest)
         
-        self.legalizer.visit_ir_move_value(move, instructions)
+        self.legalizer.visit_ir_copy(move, instructions)
         
         # Should be split into two instructions
         self.assertEqual(len(instructions), 2)
         
         # First instruction: stack to R10
-        self.assertIsInstance(instructions[0], IRMoveValue)
+        self.assertIsInstance(instructions[0], IRCopy)
         self.assertEqual(instructions[0].src, src)
         self.assertIsInstance(instructions[0].dest, Register)
         self.assertEqual(instructions[0].dest.value, RegisterEnum.R10)
         
         # Second instruction: R10 to destination stack
-        self.assertIsInstance(instructions[1], IRMoveValue)
+        self.assertIsInstance(instructions[1], IRCopy)
         self.assertIsInstance(instructions[1].src, Register)
         self.assertEqual(instructions[1].src.value, RegisterEnum.R10)
         self.assertEqual(instructions[1].dest, dest)
@@ -81,9 +81,9 @@ class TestASTLegalizerSimple(unittest.TestCase):
         pseudo1 = self.allocator.allocate_pseudo("tmp.1")
         pseudo2 = self.allocator.allocate_pseudo("tmp.2")
         
-        move = IRMoveValue(src=pseudo1, dest=pseudo2)
+        move = IRCopy(src=pseudo1, dest=pseudo2)
         
-        self.legalizer.visit_ir_move_value(move, instructions)
+        self.legalizer.visit_ir_copy(move, instructions)
         
         # Should be split because both resolve to stack locations
         self.assertEqual(len(instructions), 2)
@@ -101,9 +101,9 @@ class TestASTLegalizerSimple(unittest.TestCase):
         # Pseudo to register (should be legal after resolution)
         pseudo = self.allocator.allocate_pseudo("tmp.1")
         reg = Register(value=RegisterEnum.EAX)
-        move = IRMoveValue(src=pseudo, dest=reg)
+        move = IRCopy(src=pseudo, dest=reg)
         
-        self.legalizer.visit_ir_move_value(move, instructions)
+        self.legalizer.visit_ir_copy(move, instructions)
         
         # Should be one instruction (stack to register is legal)
         self.assertEqual(len(instructions), 1)

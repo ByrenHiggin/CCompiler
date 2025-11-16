@@ -63,3 +63,39 @@ class BitwiseRightShift(BinaryNode):
 	right: BaseNode
 	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
 		return visitor.visit_binary_expression(self, instructions)
+
+class EqualRelation(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_conditional_expression(self, instructions)
+
+class NotEqualRelation(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_conditional_expression(self, instructions)
+
+class LessThanRelation(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_conditional_expression(self, instructions)
+
+class LessThanEqualRelation(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_conditional_expression(self, instructions)
+
+class GreaterThanRelation(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_conditional_expression(self, instructions)
+
+class GreaterThanEqualRelation(BinaryNode):
+	left: BaseNode
+	right: BaseNode
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_conditional_expression(self, instructions)

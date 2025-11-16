@@ -30,7 +30,7 @@
 				}
 			],
 			"console": "integratedTerminal",
-			"args": ["--codegen","./writing-a-c-compiler-tests/tests/chapter_1/valid/multi_digit.c"]
+			"args": ["--codegen","./writing-a-c-compiler-tests/tests/chapter_4/valid/and_false.c"]
 		},
 		{
 			"name": "Python Debugger: All",

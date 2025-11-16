@@ -7,7 +7,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from modules.codeGenerator.Visitors.x86_64_AssemblyVisitor import x86_64_AssemblyVisitor
-from modules.models.nodes.IR.IRMoveValue import IRMoveValue
+from modules.models.nodes.IR.Statements.IRCopy import IRCopy
 from modules.models.nodes.IR.IRProgramNode import IRFunctionDefinition
 from modules.models.nodes.IR.Operands.Immediate import Immediate
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
@@ -135,35 +135,35 @@ class TestX86_64AssemblyVisitor(unittest.TestCase):
         self.assertEqual(len(self.instructions), 1)
         self.assertEqual(self.instructions[0], "\tnotl %eax\n")
 
-    def test_visit_ir_move_value_register_to_register(self):
+    def test_visit_ir_copy_register_to_register(self):
         """Test visiting a move instruction between registers."""
         src_reg = Register(value=RegisterEnum.EAX)
         dest_reg = Register(value=RegisterEnum.R10)
-        move_instr = IRMoveValue(src=src_reg, dest=dest_reg)
+        move_instr = IRCopy(src=src_reg, dest=dest_reg)
         
-        self.visitor.visit_ir_move_value(move_instr, self.instructions)
+        self.visitor.visit_ir_copy(move_instr, self.instructions)
         
         self.assertEqual(len(self.instructions), 1)
         self.assertEqual(self.instructions[0], "\tmovl %eax, %r10d\n")
 
-    def test_visit_ir_move_value_immediate_to_stack(self):
+    def test_visit_ir_copy_immediate_to_stack(self):
         """Test visiting a move instruction from immediate to stack."""
         src_imm = Immediate(value="100")
         dest_stack = Stack(offset=-8)
-        move_instr = IRMoveValue(src=src_imm, dest=dest_stack)
+        move_instr = IRCopy(src=src_imm, dest=dest_stack)
         
-        self.visitor.visit_ir_move_value(move_instr, self.instructions)
+        self.visitor.visit_ir_copy(move_instr, self.instructions)
         
         self.assertEqual(len(self.instructions), 1)
         self.assertEqual(self.instructions[0], "\tmovl $100, -8(%rbp)\n")
 
-    def test_visit_ir_move_value_stack_to_register(self):
+    def test_visit_ir_copy_stack_to_register(self):
         """Test visiting a move instruction from stack to register."""
         src_stack = Stack(offset=-4)
         dest_reg = Register(value=RegisterEnum.EAX)
-        move_instr = IRMoveValue(src=src_stack, dest=dest_reg)
+        move_instr = IRCopy(src=src_stack, dest=dest_reg)
         
-        self.visitor.visit_ir_move_value(move_instr, self.instructions)
+        self.visitor.visit_ir_copy(move_instr, self.instructions)
         
         self.assertEqual(len(self.instructions), 1)
         self.assertEqual(self.instructions[0], "\tmovl -4(%rbp), %eax\n")
@@ -209,7 +209,7 @@ class TestX86_64AssemblyVisitor(unittest.TestCase):
         """Test a complete function with various instructions."""
         # Create a realistic set of instructions
         instructions_list = [
-            IRMoveValue(
+            IRCopy(
                 src=Immediate(value="42"),
                 dest=Stack(offset=-4)
             ),
@@ -217,7 +217,7 @@ class TestX86_64AssemblyVisitor(unittest.TestCase):
                 operator=UnaryOperationEnum.NEG,
                 operand=Stack(offset=-4)
             ),
-            IRMoveValue(
+            IRCopy(
                 src=Stack(offset=-4),
                 dest=Register(value=RegisterEnum.EAX)
             ),
@@ -278,12 +278,12 @@ class TestX86_64AssemblyVisitor(unittest.TestCase):
     def test_instruction_formatting(self):
         """Test that instructions are properly formatted with tabs and newlines."""
         # Test move instruction formatting
-        move_instr = IRMoveValue(
+        move_instr = IRCopy(
             src=Immediate(value="5"),
             dest=Stack(offset=-4)
         )
         
-        self.visitor.visit_ir_move_value(move_instr, self.instructions)
+        self.visitor.visit_ir_copy(move_instr, self.instructions)
         
         # Should start with tab and end with newline
         self.assertTrue(self.instructions[0].startswith("\t"))

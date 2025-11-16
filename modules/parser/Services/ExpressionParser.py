@@ -44,10 +44,29 @@ class ExpressionParser:
         return left
     
     def __parse_bitwise_and(self) -> BaseNode:
-        left = self.__parse_bitwise_shift()
+        left = self.__parse_relational_comparison()
         while self.token_iterator.match(TokenType.BITWISE_AND):
-            right = self.__parse_bitwise_shift()
+            right = self.__parse_relational_comparison()
             left = BitwiseAnd(left=left, right=right)
+        return left
+    
+    def __parse_relational_comparison(self) -> BaseNode:
+        left = self.__parse_bitwise_shift()
+        if self.token_iterator.match(TokenType.EQ, TokenType.NEQ, TokenType.LT, TokenType.LTE, TokenType.GT, TokenType.GTE):
+            operator = self.token_iterator.lookbehind()
+            right = self.__parse_bitwise_shift()
+            if operator.type == TokenType.EQ:
+                left = EqualRelation(left=left, right=right)
+            elif operator.type == TokenType.NEQ:
+                left = NotEqualRelation(left=left, right=right)
+            if operator.type == TokenType.LT:
+                left = LessThanRelation(left=left, right=right)
+            elif operator.type == TokenType.LTE:
+                return LessThanEqualRelation(left=left, right=right)
+            elif operator.type == TokenType.GT:
+                return GreaterThanRelation(left=left, right=right)
+            elif operator.type == TokenType.GTE:
+                return GreaterThanEqualRelation(left=left, right=right)
         return left
     
     def __parse_bitwise_shift(self) -> BaseNode:
@@ -59,7 +78,6 @@ class ExpressionParser:
                 left = BitwiseLeftShift(left=left, right=right)
             elif operator.type == TokenType.SHIFT_RIGHT:
                 left = BitwiseRightShift(left=left, right=right)
-                
         return left
         
     def __parse_additive(self) -> BaseNode:
@@ -94,6 +112,9 @@ class ExpressionParser:
             operator = self.token_iterator.lookbehind()
             return Negate(operand=self.__parse_unary())
         if self.token_iterator.match(TokenType.BITWISE_NOT):
+            operator = self.token_iterator.lookbehind()
+            return BitwiseNot(operand=self.__parse_unary())
+        if self.token_iterator.match(TokenType.NOT):
             operator = self.token_iterator.lookbehind()
             return BitwiseNot(operand=self.__parse_unary())
         return self.__parse_primary()

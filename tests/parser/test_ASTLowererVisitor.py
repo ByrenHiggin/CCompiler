@@ -14,7 +14,7 @@ from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
 from modules.models.nodes.IR.Operands.Pseudo import Pseudo
-from modules.models.nodes.IR.IRMoveValue import IRMoveValue
+from modules.models.nodes.IR.Statements.IRCopy import IRCopy
 from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
 
 
@@ -61,7 +61,7 @@ class TestASTLowerer(unittest.TestCase):
         self.assertEqual(len(self.instructions), 2)
         
         # First instruction: move immediate to pseudo
-        self.assertIsInstance(self.instructions[0], IRMoveValue)
+        self.assertIsInstance(self.instructions[0], IRCopy)
         self.assertIsInstance(self.instructions[0].src, Immediate)
         self.assertEqual(self.instructions[0].src.value, "5")
         self.assertIsInstance(self.instructions[0].dest, Pseudo)
@@ -93,7 +93,7 @@ class TestASTLowerer(unittest.TestCase):
         self.assertEqual(len(self.instructions), 2)
         
         # First instruction: move immediate to pseudo
-        self.assertIsInstance(self.instructions[0], IRMoveValue)
+        self.assertIsInstance(self.instructions[0], IRCopy)
         self.assertIsInstance(self.instructions[0].src, Immediate) 
         self.assertEqual(self.instructions[0].src.value, "7")
         self.assertIsInstance(self.instructions[0].dest, Pseudo)
@@ -151,7 +151,7 @@ class TestASTLowerer(unittest.TestCase):
         self.assertEqual(len(self.instructions), 2)
         
         # First instruction: move return value to EAX
-        self.assertIsInstance(self.instructions[0], IRMoveValue)
+        self.assertIsInstance(self.instructions[0], IRCopy)
         self.assertIsInstance(self.instructions[0].src, Immediate)
         self.assertEqual(self.instructions[0].src.value, "10")
         self.assertIsInstance(self.instructions[0].dest, Register)
@@ -261,10 +261,10 @@ class TestASTLowerer(unittest.TestCase):
         self.assertEqual(len(self.instructions), 4)
         
         # Verify instruction sequence
-        self.assertIsInstance(self.instructions[0], IRMoveValue)  # Move 42
+        self.assertIsInstance(self.instructions[0], IRCopy)  # Move 42
         self.assertIsInstance(self.instructions[1], UnaryInstruction)  # NOT
         self.assertEqual(self.instructions[1].operator, UnaryOperationEnum.NOT)
-        self.assertIsInstance(self.instructions[2], IRMoveValue)  # Move result
+        self.assertIsInstance(self.instructions[2], IRCopy)  # Move result
         self.assertIsInstance(self.instructions[3], UnaryInstruction)  # NEG
         self.assertEqual(self.instructions[3].operator, UnaryOperationEnum.NEG)
         

@@ -53,11 +53,11 @@ class TokenIteratorService():
     def token_in_type_set(self, token: Token, types: list[TokenType]) -> bool:
         return token.type in types
     
-    def check(self, token_type: TokenType) -> bool:
+    def check(self, *token_type: TokenType) -> bool:
         """Check current token type without consuming"""
         if self.at_end():
             return False
-        return self.current().type == token_type
+        return self.current().type in token_type
     
     def advance(self) -> Token:
         """Consume current token and return it"""

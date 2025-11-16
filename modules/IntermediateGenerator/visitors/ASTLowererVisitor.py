@@ -1,16 +1,16 @@
 
 from typing import List
-from modules.models.nodes.AST.Operands.BinaryOperators import BinaryAdd, BinaryDivide, BinaryMinus, BinaryModulus, BinaryMultiply, BitwiseAnd, BitwiseLeftShift, BitwiseOr, BitwiseRightShift, BitwiseXor
+from modules.models.nodes.AST.Operands.BinaryOperators import *
 from modules.models.nodes.AST.Operands.ExpressionNode import BinaryNode
 from modules.models.nodes.AST.Statements.ReturnStatementNode import StatementNode
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
-from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, Negate
+from modules.models.nodes.AST.Operands.UnaryOperators import BitwiseNot, LogicalNot, Negate
 from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
-from modules.models.nodes.IR.Operands.BinaryInstruction import AddInstruction, BinaryOperationEnum, BitwiseAndInstruction, BitwiseLeftShiftInstruction, BitwiseOrInstruction, BitwiseRightShiftInstruction, BitwiseXorInstruction, DivInstruction, ModInstruction, MulInstruction, SubInstruction
+from modules.models.nodes.IR.Operands.BinaryInstruction import *
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
-from modules.models.nodes.IR.IRMoveValue import IRMoveValue
+from modules.models.nodes.IR.Statements.IRCopy import IRCopy
 from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
 from modules.IntermediateGenerator.visitors.StackAllocator import StackAllocator
 
@@ -31,13 +31,13 @@ class ASTLowerer(VisitorModel):
         dest_pseudo = f"reg.{RegisterEnum.EAX}"
         dest_pseudo = self.allocator.allocate_pseudo(dest_pseudo)
         
-        instructions.append(IRMoveValue(src=divisor, dest=src_pseudo))
-        instructions.append(IRMoveValue(src=dividend, dest=dest_pseudo))
+        instructions.append(IRCopy(src=divisor, dest=src_pseudo))
+        instructions.append(IRCopy(src=dividend, dest=dest_pseudo))
         
         if(op == BinaryOperationEnum.MODULUS):
             target_pseudo = self.allocator.allocate_pseudo(f"reg.{RegisterEnum.EDX}")
             instructions.append(ModInstruction(src=src_pseudo, dest=dest_pseudo))
-            instructions.append(IRMoveValue(src=target_pseudo, dest=dest_pseudo))
+            instructions.append(IRCopy(src=target_pseudo, dest=dest_pseudo))
             return dest_pseudo
         else:
             instructions.append(DivInstruction(src=src_pseudo, dest=dest_pseudo))
@@ -51,7 +51,7 @@ class ASTLowerer(VisitorModel):
         dest_pseudo = self.allocator.allocate_pseudo(src_name)
         scratch_name = f"reg.{RegisterEnum.R11.name}"
         scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
-        instructions.append(IRMoveValue(src=left_result, dest=scratch_pseudo))
+        instructions.append(IRCopy(src=left_result, dest=scratch_pseudo))
         match op:
             case BinaryOperationEnum.ADD:
                 instructions.append(AddInstruction(src=scratch_pseudo, dest=right_result))
@@ -61,7 +61,7 @@ class ASTLowerer(VisitorModel):
                 instructions.append(MulInstruction(src=scratch_pseudo, dest=right_result))
             case _:
                 raise NotImplementedError(f"Operation {op} not implemented in __visit_add_sub_or_mult")                           
-        instructions.append(IRMoveValue(src=scratch_pseudo, dest=dest_pseudo))
+        instructions.append(IRCopy(src=scratch_pseudo, dest=dest_pseudo))
         return dest_pseudo
     
     def __visit_bitwise_and_or_xor(self, node: BinaryNode, instructions: List[BaseNode], op: BinaryOperationEnum):
@@ -72,7 +72,7 @@ class ASTLowerer(VisitorModel):
         dest_pseudo = self.allocator.allocate_pseudo(src_name)
         scratch_name = f"reg.{RegisterEnum.R11.name}"
         scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
-        instructions.append(IRMoveValue(src=left_result, dest=scratch_pseudo))
+        instructions.append(IRCopy(src=left_result, dest=scratch_pseudo))
         match op:
             case BinaryOperationEnum.BITWISE_AND:
                 instructions.append(BitwiseAndInstruction(src=scratch_pseudo, dest=right_result))
@@ -86,7 +86,7 @@ class ASTLowerer(VisitorModel):
                 instructions.append(BitwiseRightShiftInstruction(src=scratch_pseudo, dest=right_result))
             case _:
                 raise NotImplementedError(f"Operation {op} not implemented in __visit_add_sub_or_mult")                           
-        instructions.append(IRMoveValue(src=scratch_pseudo, dest=dest_pseudo))
+        instructions.append(IRCopy(src=scratch_pseudo, dest=dest_pseudo))
         return dest_pseudo 
      
     def visit_binary_expression(self, node: BinaryNode, instructions: List[BaseNode]):
@@ -112,14 +112,43 @@ class ASTLowerer(VisitorModel):
             return self.__visit_bitwise_and_or_xor(node, instructions,BinaryOperationEnum.SHIFT_RIGHT)
         else:
             raise NotImplementedError(f"Binary operation for {type(node)} not implemented in ASTLowerer")
+        
+    def visit_conditional_expression(self, node: BaseNode, instructions: List[BaseNode]):
+        temp_name = f"tmp.{self.allocator.temp_counter}"
+        self.allocator.temp_counter += 1
+        temp = self.allocator.allocate_pseudo(temp_name)
+        if isinstance(node, EqualRelation):
+            pass
+        elif isinstance(node, NotEqualRelation):
+            pass
+        elif isinstance(node, LessThanRelation):
+            pass
+        elif isinstance(node, LessThanEqualRelation):
+            pass
+        elif isinstance(node, GreaterThanRelation):
+            pass
+        elif isinstance(node, GreaterThanEqualRelation):
+            pass
+        else:
+            raise NotImplementedError(f"Conditional operation for {type(node)} not implemented in ASTLowerer")
+        return temp 
 
     def visit_negate(self, node: Negate, instructions: List[BaseNode]):
         operand_result = node.operand.accept(self, instructions)
         temp_name = f"tmp.{self.allocator.temp_counter}"
         self.allocator.temp_counter += 1
         temp = self.allocator.allocate_pseudo(temp_name)
-        instructions.append(IRMoveValue(src=operand_result, dest=temp))
+        instructions.append(IRCopy(src=operand_result, dest=temp))
         instructions.append(UnaryInstruction(operator=UnaryOperationEnum.NEG, operand=temp))
+        return temp
+    
+    def visit_logical_not(self, node: LogicalNot, instructions: List[BaseNode]):
+        operand_result = node.operand.accept(self, instructions)
+        temp_name = f"tmp.{self.allocator.temp_counter}"
+        self.allocator.temp_counter += 1
+        temp = self.allocator.allocate_pseudo(temp_name)
+        instructions.append(IRCopy(src=operand_result, dest=temp))
+        instructions.append(UnaryInstruction(operator=UnaryOperationEnum.NOT, operand=temp))
         return temp
     
     def visit_bitwise_not(self, node: BitwiseNot, instructions: List[BaseNode]):
@@ -127,8 +156,8 @@ class ASTLowerer(VisitorModel):
         temp_name = f"tmp.{self.allocator.temp_counter}"
         self.allocator.temp_counter += 1
         temp = self.allocator.allocate_pseudo(temp_name)
-        instructions.append(IRMoveValue(src=operand_result, dest=temp))
-        instructions.append(UnaryInstruction(operator=UnaryOperationEnum.NOT, operand=temp))
+        instructions.append(IRCopy(src=operand_result, dest=temp))
+        instructions.append(UnaryInstruction(operator=UnaryOperationEnum.BITWISE_NOT, operand=temp))
         return temp
     
     def visit_constant_integer(self, node, instructions: List[BaseNode]):
@@ -138,7 +167,7 @@ class ASTLowerer(VisitorModel):
     def visit_return_statement(self, node:StatementNode, instructions: List[BaseNode]) -> BaseNode:
         # Handle return statement
         return_value: IRNode = node.value.accept(self, instructions)
-        instructions.append(IRMoveValue(src=return_value, dest=Register(value=RegisterEnum.EAX)))
+        instructions.append(IRCopy(src=return_value, dest=Register(value=RegisterEnum.EAX)))
         instructions.append(IRreturn(value=Register(value=RegisterEnum.EAX)))
         return return_value
     

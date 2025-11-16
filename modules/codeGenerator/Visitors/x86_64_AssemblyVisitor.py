@@ -1,11 +1,11 @@
 from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
-from modules.models.nodes.IR.IRMoveValue import IRMoveValue
 from modules.models.nodes.IR.IRProgramNode import IRFunctionDefinition
 from modules.models.nodes.IR.Operands.BinaryInstruction import BinaryInstruction
 from modules.models.nodes.IR.Operands.Immediate import Immediate
 from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
+from modules.models.nodes.IR.Statements.IRCopy import IRCopy
 
 class x86_64_AssemblyVisitor(VisitorModel):
     REGISTER_MAP: dict[RegisterEnum, str] = {
@@ -42,13 +42,14 @@ class x86_64_AssemblyVisitor(VisitorModel):
     def visit_unary_instruction(self, node:UnaryInstruction, instructions: list[str]) -> IRNode:
         op_map = {
             UnaryOperationEnum.NEG: "negl",
-            UnaryOperationEnum.NOT: "notl"
+            UnaryOperationEnum.BITWISE_NOT: "notl",
+            UnaryOperationEnum.NOT: "notl"  #TODO: Actually implement logic
         }
         operand = self._operand_to_asm(node.operand)
         instructions.append(f"\t{op_map[node.operator]} {operand}\n")
         return node
     
-    def visit_ir_move_value(self, node: IRMoveValue, instructions: list[str]) -> IRNode:
+    def visit_ir_copy(self, node: IRCopy, instructions: list[str]) -> IRNode:
         src = self._operand_to_asm(node.src)
         dest = self._operand_to_asm(node.dest)
         instructions.append(f"\tmovl {src}, {dest}\n")

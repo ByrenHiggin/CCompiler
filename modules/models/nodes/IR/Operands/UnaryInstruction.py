@@ -4,6 +4,7 @@ from modules.models.nodes.BaseNode import BaseNode, IR_Expression, VisitorModel
 
 class UnaryOperationEnum(Enum):
 	NEG = "NEG"
+	BITWISE_NOT = "BITWISE_NOT"
 	NOT = "NOT"
 
 class UnaryInstruction(IR_Expression):

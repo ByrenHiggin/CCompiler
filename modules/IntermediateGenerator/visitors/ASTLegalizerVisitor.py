@@ -1,7 +1,7 @@
 
 from typing import List
 from modules.models.nodes.BaseNode import IRNode, VisitorModel
-from modules.models.nodes.IR.IRMoveValue import IRMoveValue
+from modules.models.nodes.IR.Statements.IRCopy import IRCopy
 from modules.models.nodes.IR.Operands.BinaryInstruction import AddInstruction, BinaryInstruction, DivInstruction, ModInstruction, MulInstruction, SubInstruction
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction
@@ -15,7 +15,7 @@ class ASTLegalizer(VisitorModel):
     def __init__(self, allocator: StackAllocator):
         self.allocator = allocator
 
-    def visit_ir_move_value(self, node: IRMoveValue, instructions: List[IRNode]):
+    def visit_ir_copy(self, node: IRCopy, instructions: List[IRNode]):
         src = self.allocator.resolve_pseudo(node.src) if isinstance(node.src, Pseudo) else node.src
         dest = self.allocator.resolve_pseudo(node.dest) if isinstance(node.dest, Pseudo) else node.dest
         if isinstance(src, Register) and isinstance(dest, Register):
@@ -24,10 +24,10 @@ class ASTLegalizer(VisitorModel):
         
         if isinstance(src, Stack) and isinstance(dest, Stack):
             temp_reg = Register(value=RegisterEnum.R10)
-            instructions.append(IRMoveValue(src=src, dest=temp_reg))
-            instructions.append(IRMoveValue(src=temp_reg, dest=dest))
+            instructions.append(IRCopy(src=src, dest=temp_reg))
+            instructions.append(IRCopy(src=temp_reg, dest=dest))
         else:
-            instructions.append(IRMoveValue(src=src, dest=dest))
+            instructions.append(IRCopy(src=src, dest=dest))
     
     def visit_unary_instruction(self, node: UnaryInstruction, instructions: List[IRNode]):
         if isinstance(node.operand, Pseudo):
