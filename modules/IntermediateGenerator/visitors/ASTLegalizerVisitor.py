@@ -1,12 +1,14 @@
 
 from typing import List
+from modules.models.enums.GenericRegisterEnum import GenericRegisterEnum
 from modules.models.nodes.BaseNode import IRNode, VisitorModel
+from modules.models.nodes.IR.Operands.Register import Register
 from modules.models.nodes.IR.Statements.IRCopy import IRCopy
 from modules.models.nodes.IR.Operands.BinaryInstruction import AddInstruction, BinaryInstruction, DivInstruction, ModInstruction, MulInstruction, SubInstruction
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction
-from modules.models.nodes.IR.Operands.Pseudo import Pseudo
-from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
+from modules.models.nodes.IR.Operands.Pseudo import *
+from modules.models.nodes.IR.Statements.IRJump import IRJump, IRJumpIfNotZero, IRJumpIfZero
 from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
 from modules.IntermediateGenerator.visitors.StackAllocator import StackAllocator
 
@@ -15,6 +17,10 @@ class ASTLegalizer(VisitorModel):
     def __init__(self, allocator: StackAllocator):
         self.allocator = allocator
 
+    def visit_label(self, node: Label, instructions: List[IRNode]):
+        instructions.append(node)
+        return node
+    
     def visit_ir_copy(self, node: IRCopy, instructions: List[IRNode]):
         src = self.allocator.resolve_pseudo(node.src) if isinstance(node.src, Pseudo) else node.src
         dest = self.allocator.resolve_pseudo(node.dest) if isinstance(node.dest, Pseudo) else node.dest
@@ -23,7 +29,7 @@ class ASTLegalizer(VisitorModel):
                 return None
         
         if isinstance(src, Stack) and isinstance(dest, Stack):
-            temp_reg = Register(value=RegisterEnum.R10)
+            temp_reg = Register(value=GenericRegisterEnum.R10)
             instructions.append(IRCopy(src=src, dest=temp_reg))
             instructions.append(IRCopy(src=temp_reg, dest=dest))
         else:
@@ -75,4 +81,35 @@ class ASTLegalizer(VisitorModel):
     
     def visit_bitwise_right_shift_instruction(self, node: BinaryInstruction, instructions: list[IRNode]) -> IRNode:
         self.visit_binary_instruction(node, instructions)
+        return node
+    
+    def visit_logical_and_instruction(self, node: BinaryInstruction, instructions: list[IRNode]) -> IRNode:
+        self.visit_binary_instruction(node, instructions)
+        return node
+    
+    def visit_logical_or_instruction(self, node: BinaryInstruction, instructions: list[IRNode]) -> IRNode:
+        self.visit_binary_instruction(node, instructions)
+        return node
+    
+    def visit_ir_jump(self, node: IRNode, instructions: List[IRNode]):
+        
+        if isinstance(node, IRJump):
+            instructions.append(IRJump(label=node.label))
+        elif isinstance(node, IRJumpIfZero):
+            src = self.allocator.resolve_pseudo(node.src) if isinstance(node.src, Pseudo) else node.src
+            instructions.append(IRJumpIfZero(src=src, label=node.label))
+        elif isinstance(node, IRJumpIfNotZero):
+            src = self.allocator.resolve_pseudo(node.src) if isinstance(node.src, Pseudo) else node.src
+            instructions.append(IRJumpIfNotZero(src=src, label=node.label))
+        return node
+
+    def visit_ir_label(self, node: IRNode, instructions: List[IRNode]):
+        instructions.append(node)
+        return node
+    
+    def visit_relational_instruction(self, node: BinaryInstruction, instructions: List[IRNode]):
+        node.src = self.allocator.resolve_pseudo(node.src) if isinstance(node.src, Pseudo) else node.src
+        node.dest = self.allocator.resolve_pseudo(node.dest) if isinstance(node.dest, Pseudo) else node.dest
+        instructions.append(node)
+        #TODO: Add sete etc. instructions here instead of in the x86 visitor
         return node

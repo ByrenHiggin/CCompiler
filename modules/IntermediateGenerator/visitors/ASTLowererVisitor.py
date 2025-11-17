@@ -1,5 +1,6 @@
 
 from typing import List
+from modules.models.enums.GenericRegisterEnum import GenericRegisterEnum
 from modules.models.nodes.AST.Operands.BinaryOperators import *
 from modules.models.nodes.AST.Operands.BitwiseOperators import *
 from modules.models.nodes.AST.Operands.RelationalOperators import * 
@@ -11,14 +12,17 @@ from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefini
 
 from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
 
+from modules.models.nodes.IR.Operands.Pseudo import Label
+from modules.models.nodes.IR.Operands.RelationalInstruction import *
 from modules.models.nodes.IR.Operands.UnaryInstruction import *
 from modules.models.nodes.IR.Operands.BinaryInstruction import *
 from modules.models.nodes.IR.Operands.BitwiseInstruction import *
 
-from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
+from modules.models.nodes.IR.Operands.Register import Register
 from modules.models.nodes.IR.Operands.UnaryInstruction import UnaryInstruction, UnaryOperationEnum
 from modules.models.nodes.IR.Operands.Immediate import Immediate
 from modules.models.nodes.IR.Statements.IRCopy import IRCopy
+from modules.models.nodes.IR.Statements.IRJump import *
 from modules.models.nodes.IR.Statements.IRReturnValue import IRreturn
 from modules.IntermediateGenerator.visitors.StackAllocator import StackAllocator
 
@@ -27,7 +31,10 @@ class ASTLowerer(VisitorModel):
     allocator: StackAllocator
     def __init__(self, allocator: StackAllocator):
         self.allocator = allocator
-        
+       
+    def __zero_out_ax(self, instructions: List[BaseNode]):
+        instructions.append(IRCopy(src=Immediate(value="0"), dest=Register(value=GenericRegisterEnum.AX))) # Set EAX to 0
+     
     def __visit_divisor_or_modulo(self, node: BinaryNode, instructions: List[BaseNode], op: BinaryOperationEnum):
         dividend = node.left.accept(self, instructions)
         divisor = node.right.accept(self, instructions)
@@ -36,14 +43,14 @@ class ASTLowerer(VisitorModel):
         self.allocator.temp_counter += 1
         src_pseudo = self.allocator.allocate_pseudo(src_name)
         
-        dest_pseudo = f"reg.{RegisterEnum.EAX}"
+        dest_pseudo = f"reg.{GenericRegisterEnum.AX}"
         dest_pseudo = self.allocator.allocate_pseudo(dest_pseudo)
         
         instructions.append(IRCopy(src=divisor, dest=src_pseudo))
         instructions.append(IRCopy(src=dividend, dest=dest_pseudo))
         
         if(op == BinaryOperationEnum.MODULUS):
-            target_pseudo = self.allocator.allocate_pseudo(f"reg.{RegisterEnum.EDX}")
+            target_pseudo = self.allocator.allocate_pseudo(f"reg.{GenericRegisterEnum.DX}")
             instructions.append(ModInstruction(src=src_pseudo, dest=dest_pseudo))
             instructions.append(IRCopy(src=target_pseudo, dest=dest_pseudo))
             return dest_pseudo
@@ -57,7 +64,7 @@ class ASTLowerer(VisitorModel):
         src_name = f"tmp.{self.allocator.temp_counter}"
         self.allocator.temp_counter += 1
         dest_pseudo = self.allocator.allocate_pseudo(src_name)
-        scratch_name = f"reg.{RegisterEnum.R11.name}"
+        scratch_name = f"reg.{GenericRegisterEnum.R11}"
         scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
         instructions.append(IRCopy(src=left_result, dest=scratch_pseudo))
         match op:
@@ -78,7 +85,7 @@ class ASTLowerer(VisitorModel):
         src_name = f"tmp.{self.allocator.temp_counter}"
         self.allocator.temp_counter += 1
         dest_pseudo = self.allocator.allocate_pseudo(src_name)
-        scratch_name = f"reg.{RegisterEnum.R11.name}"
+        scratch_name = f"reg.{GenericRegisterEnum.R11}"
         scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
         instructions.append(IRCopy(src=left_result, dest=scratch_pseudo))
         match op:
@@ -95,7 +102,47 @@ class ASTLowerer(VisitorModel):
             case _:
                 raise NotImplementedError(f"Operation {op} not implemented in __visit_add_sub_or_mult")                           
         instructions.append(IRCopy(src=scratch_pseudo, dest=dest_pseudo))
-        return dest_pseudo 
+        return dest_pseudo
+    
+    def visit_logical_or(self, node: BinaryNode, instructions: List[BaseNode]):
+        left_result = node.left.accept(self, instructions)
+        right_result = node.right.accept(self, instructions)
+        dest_pseudo = self.__allocate_temp()
+        scratch_name = f"reg.{GenericRegisterEnum.R11}"
+        scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
+        false_label = IRLabel(name=f"lbl.false.{self.allocator.temp_counter}")
+        end_label = IRLabel(name=f"lbl.end.{self.allocator.temp_counter}")
+        
+        instructions.append(IRCopy(src=left_result, dest=scratch_pseudo))
+        instructions.append(IRJumpIfNotZero(src=scratch_pseudo, label=false_label.name))
+        instructions.append(IRCopy(src=right_result, dest=scratch_pseudo))
+        instructions.append(IRJumpIfNotZero(src=scratch_pseudo, label=false_label.name))
+        instructions.append(IRCopy(src=Immediate(value="0"), dest=dest_pseudo))
+        instructions.append(IRJump(label=end_label.name))
+        instructions.append(false_label)
+        instructions.append(IRCopy(src=Immediate(value="1"), dest=dest_pseudo))
+        instructions.append(end_label)
+        return dest_pseudo
+    
+    def visit_logical_and(self, node: BinaryNode, instructions: List[BaseNode]):
+        left_result = node.left.accept(self, instructions)
+        right_result = node.right.accept(self, instructions)
+        dest_pseudo = self.__allocate_temp()
+        scratch_name = f"reg.{GenericRegisterEnum.R11}"
+        scratch_pseudo = self.allocator.allocate_pseudo(scratch_name)
+        false_label = IRLabel(name=f"lbl.false.{self.allocator.temp_counter}")
+        end_label = IRLabel(name=f"lbl.end.{self.allocator.temp_counter}")
+        
+        instructions.append(IRCopy(src=left_result, dest=scratch_pseudo))
+        instructions.append(IRJumpIfZero(src=scratch_pseudo, label=false_label.name))
+        instructions.append(IRCopy(src=right_result, dest=scratch_pseudo))
+        instructions.append(IRJumpIfZero(src=scratch_pseudo, label=false_label.name))
+        instructions.append(IRCopy(src=Immediate(value="1"), dest=dest_pseudo))
+        instructions.append(IRJump(label=end_label.name))
+        instructions.append(false_label)
+        instructions.append(IRCopy(src=Immediate(value="0"), dest=dest_pseudo))
+        instructions.append(end_label)
+        return dest_pseudo
      
     def visit_binary_expression(self, node: BinaryNode, instructions: List[BaseNode]):
         if isinstance(node, BinaryMinus):
@@ -126,23 +173,27 @@ class ASTLowerer(VisitorModel):
             raise NotImplementedError(f"Binary operation for {type(node)} not implemented in ASTLowerer")
         
     def visit_conditional_expression(self, node: BaseNode, instructions: List[BaseNode]):
-        temp_name = f"tmp.{self.allocator.temp_counter}"
-        self.allocator.temp_counter += 1
-        temp = self.allocator.allocate_pseudo(temp_name)
+        #clears and writes to the AL register
+        src = node.left.accept(self, instructions)
+        dest = node.right.accept(self, instructions)
+        temp = self.allocator.allocate_pseudo(f"reg.{GenericRegisterEnum.R10}")
+        self.__zero_out_ax(instructions)
+        instructions.append(IRCopy(src=src, dest=temp))
         if isinstance(node, EqualRelation):
-            pass
+            instructions.append(EqualRelationInstruction(src=temp, dest=dest))
         elif isinstance(node, NotEqualRelation):
-            pass
+            instructions.append(NotEqualRelationInstruction(src=temp, dest=dest))
         elif isinstance(node, LessThanRelation):
-            pass
+            instructions.append(LessThanRelationInstruction(src=temp, dest=dest))
         elif isinstance(node, LessThanEqualRelation):
-            pass
+            instructions.append(LessThanEqualRelationInstruction(src=temp, dest=dest))
         elif isinstance(node, GreaterThanRelation):
-            pass
+            instructions.append(GreaterThanRelationInstruction(src=temp, dest=dest))
         elif isinstance(node, GreaterThanEqualRelation):
-            pass
+            instructions.append(GreaterThanEqualRelationInstruction(src=temp, dest=dest))
         else:
             raise NotImplementedError(f"Conditional operation for {type(node)} not implemented in ASTLowerer")
+        instructions.append(IRCopy(src=Register(value=GenericRegisterEnum.AX), dest=temp)) 
         return temp
     
     def __allocate_temp(self) -> Register:
@@ -179,8 +230,8 @@ class ASTLowerer(VisitorModel):
     def visit_return_statement(self, node:StatementNode, instructions: List[BaseNode]) -> BaseNode:
         # Handle return statement
         return_value: IRNode = node.value.accept(self, instructions)
-        instructions.append(IRCopy(src=return_value, dest=Register(value=RegisterEnum.EAX)))
-        instructions.append(IRreturn(value=Register(value=RegisterEnum.EAX)))
+        instructions.append(IRCopy(src=return_value, dest=Register(value=GenericRegisterEnum.AX)))
+        instructions.append(IRreturn(value=Register(value=GenericRegisterEnum.AX)))
         return return_value
     
     def visit_function_definition(self, node: FunctionDefinitionNode, instructions: List[BaseNode])-> BaseNode:

@@ -39,3 +39,15 @@ class ModInstruction(BinaryInstruction):
     dest: IR_Expression
     def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
         return visitor.visit_div_mod_instruction(self, instructions)
+
+# class LogicalAndInstruction(BinaryInstruction):
+#     src: IR_Expression
+#     dest: IR_Expression
+#     def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+#         return visitor.visit_logical_and_instruction(self, instructions)
+    
+# class LogicalOrInstruction(BinaryInstruction):
+#     src: IR_Expression
+#     dest: IR_Expression
+#     def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+#         return visitor.visit_logical_or_instruction(self, instructions)

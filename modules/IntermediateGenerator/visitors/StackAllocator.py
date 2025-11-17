@@ -1,4 +1,5 @@
-from modules.models.nodes.IR.Operands.Register import Register, RegisterEnum
+from modules.models.enums.GenericRegisterEnum import GenericRegisterEnum
+from modules.models.nodes.IR.Operands.Register import Register 
 from modules.models.nodes.IR.Operands.Stack import Stack
 from modules.models.nodes.IR.Operands.Pseudo import Pseudo
 
@@ -29,6 +30,6 @@ class StackAllocator:
             raise KeyError("Pseudo not registered to stack")
         if self.__is_register(pseudo.value):
             reg = pseudo.value[4:]
-            regEnum = RegisterEnum[reg]
+            regEnum = GenericRegisterEnum.from_reg_label(reg)
             return Register(value=regEnum)
         return Stack(offset=self.register_map[pseudo.value])

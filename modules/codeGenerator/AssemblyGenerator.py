@@ -3,6 +3,7 @@ from modules.models.nodes.IR.IRProgramNode import IRProgramNode
 from modules.utils.logger import get_logger
 
 
+
 class AssemblyGenerator:
     visitor: x86_64_AssemblyVisitor
     lines: list[str]

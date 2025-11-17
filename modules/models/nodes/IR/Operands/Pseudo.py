@@ -6,3 +6,9 @@ class Pseudo(Operand):
 
 	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
 		return visitor.visit_pseudo(self, instructions)
+
+class Label(Operand):
+	name: str
+
+	def accept(self, visitor: VisitorModel, instructions:List[Any]) -> BaseNode:
+		return visitor.visit_label(self, instructions)
