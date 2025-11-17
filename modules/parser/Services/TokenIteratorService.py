@@ -47,8 +47,11 @@ class TokenIteratorService():
     def lookahead(self) -> Token:
         return self.peek_ahead(self.position+1)
     
-    def lookbehind(self) -> Token | None:
-        return self.peek_behind(self.position-1)
+    def lookbehind(self) -> Token:
+        val = self.peek_behind(self.position-1)
+        if val is None:
+            raise IndexError("No token behind current position")
+        return val
 
     def token_in_type_set(self, token: Token, types: list[TokenType]) -> bool:
         return token.type in types

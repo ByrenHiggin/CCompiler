@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from typing import Any, List
 from pydantic import BaseModel
 from typing_extensions import Self 
@@ -7,10 +6,8 @@ class VisitorModel:
     pass
 
 class BaseNode(BaseModel):
-    @abstractmethod
-    def accept(self, visitor: Any, instructions:List[Any]) -> Self:
-        """Accept a visitor - this is the key to the visitor pattern"""
-        pass
+    def accept(self, visitor: VisitorModel, instructions: List[Any]) -> Self:
+        raise NotImplementedError(f"No visitor method {self.__class__.__name__.lower()}")
     
 class IRNode(BaseNode):
     pass

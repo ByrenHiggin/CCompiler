@@ -21,14 +21,14 @@ class ExpressionParser:
         left = self.__parse_logical_and()
         while self.token_iterator.match(TokenType.LOGICAL_OR):
             right = self.__parse_logical_and()
-            left = BitwiseOr(left=left, right=right)
+            left = LogicalOr(left=left, right=right)
         return left  
     
     def __parse_logical_and(self) -> BaseNode:
         left = self.__parse_bitwise_or()
         while self.token_iterator.match(TokenType.LOGICAL_AND):
             right = self.__parse_bitwise_or()
-            left = BitwiseOr(left=left, right=right)
+            left = LogicalAnd(left=left, right=right)
         return left 
     
     def __parse_bitwise_or(self) -> BaseNode:
@@ -54,7 +54,7 @@ class ExpressionParser:
     
     def __parse_relational_comparison(self) -> BaseNode:
         left = self.__parse_relational_lt_gt_comparison()
-        while self.token_iterator.match(TokenType.EQ, TokenType.NEQ, TokenType.LT, TokenType.LTE, TokenType.GT, TokenType.GTE):
+        while self.token_iterator.match(TokenType.EQ, TokenType.NEQ):
             operator = self.token_iterator.lookbehind()
             right = self.__parse_relational_lt_gt_comparison()
             if operator.type == TokenType.EQ:
@@ -71,11 +71,11 @@ class ExpressionParser:
             if operator.type == TokenType.LT:
                 left = LessThanRelation(left=left, right=right)
             elif operator.type == TokenType.LTE:
-                return LessThanEqualRelation(left=left, right=right)
+                left = LessThanEqualRelation(left=left, right=right)
             elif operator.type == TokenType.GT:
-                return GreaterThanRelation(left=left, right=right)
+                left = GreaterThanRelation(left=left, right=right)
             elif operator.type == TokenType.GTE:
-                return GreaterThanEqualRelation(left=left, right=right)
+                left = GreaterThanEqualRelation(left=left, right=right)
         return left
     
     def __parse_bitwise_shift(self) -> BaseNode:

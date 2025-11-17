@@ -143,31 +143,31 @@ class ASTLowerer(VisitorModel):
             pass
         else:
             raise NotImplementedError(f"Conditional operation for {type(node)} not implemented in ASTLowerer")
-        return temp 
-
-    def visit_negate(self, node: Negate, instructions: List[BaseNode]):
-        operand_result = node.operand.accept(self, instructions)
+        return temp
+    
+    def __allocate_temp(self) -> Register:
         temp_name = f"tmp.{self.allocator.temp_counter}"
         self.allocator.temp_counter += 1
         temp = self.allocator.allocate_pseudo(temp_name)
+        return temp
+
+    def visit_negate(self, node: Negate, instructions: List[BaseNode]):
+        operand_result = node.operand.accept(self, instructions)
+        temp = self.__allocate_temp() 
         instructions.append(IRCopy(src=operand_result, dest=temp))
         instructions.append(UnaryInstruction(operator=UnaryOperationEnum.NEG, operand=temp))
         return temp
     
     def visit_logical_not(self, node: LogicalNot, instructions: List[BaseNode]):
         operand_result = node.operand.accept(self, instructions)
-        temp_name = f"tmp.{self.allocator.temp_counter}"
-        self.allocator.temp_counter += 1
-        temp = self.allocator.allocate_pseudo(temp_name)
+        temp = self.__allocate_temp() 
         instructions.append(IRCopy(src=operand_result, dest=temp))
         instructions.append(UnaryInstruction(operator=UnaryOperationEnum.NOT, operand=temp))
         return temp
     
     def visit_bitwise_not(self, node: BitwiseNot, instructions: List[BaseNode]):
         operand_result = node.operand.accept(self, instructions)
-        temp_name = f"tmp.{self.allocator.temp_counter}"
-        self.allocator.temp_counter += 1
-        temp = self.allocator.allocate_pseudo(temp_name)
+        temp = self.__allocate_temp() 
         instructions.append(IRCopy(src=operand_result, dest=temp))
         instructions.append(UnaryInstruction(operator=UnaryOperationEnum.BITWISE_NOT, operand=temp))
         return temp

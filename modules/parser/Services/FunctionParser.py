@@ -1,4 +1,3 @@
-from turtle import left
 from typing import Callable, List
 from modules.models.enums.token_type import TokenType
 from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefinitionNode
