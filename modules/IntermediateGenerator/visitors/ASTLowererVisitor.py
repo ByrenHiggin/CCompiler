@@ -12,7 +12,6 @@ from modules.models.nodes.AST.Functions.FunctionDefinition import FunctionDefini
 
 from modules.models.nodes.BaseNode import BaseNode, IRNode, VisitorModel
 
-from modules.models.nodes.IR.Operands.Pseudo import Label
 from modules.models.nodes.IR.Operands.RelationalInstruction import *
 from modules.models.nodes.IR.Operands.UnaryInstruction import *
 from modules.models.nodes.IR.Operands.BinaryInstruction import *
